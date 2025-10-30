@@ -2,9 +2,14 @@ import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { Contact } from '../../types';
 import { ContactCard } from './ContactCard';
+import { VideoCall } from '../call/VideoCall';
+import { IncomingCallModal } from '../call/IncomingCallModal';
+import { useCallStore } from '../../stores/callStore';
 
 export function Dashboard() {
   const { user, logout } = useAuth();
+  const { isInCall, startCall, endCall } = useCallStore();
+  const [targetContact, setTargetContact] = useState<Contact | null>(null);
 
   // Contatti mock per demo
   const [contacts] = useState<Contact[]>([
@@ -44,9 +49,34 @@ export function Dashboard() {
 
   const handleCall = (contactId: string) => {
     const contact = contacts.find(c => c.id === contactId);
-    alert(`📞 Chiamata a ${contact?.username} (coming soon!)`);
-    // TODO: Implementare chiamata WebRTC
+    if (!contact) return;
+
+    console.log(`📞 Avvio chiamata a ${contact.username}`);
+    setTargetContact(contact);
+    startCall(contact, 'video');
   };
+
+  const handleEndCall = () => {
+    console.log('📞 Chiusura chiamata');
+    endCall();
+    setTargetContact(null);
+  };
+
+  // Se in chiamata, mostra UI chiamata
+  if (isInCall && targetContact && user) {
+    return (
+      <VideoCall
+        currentUser={{
+          id: user.id,
+          username: user.username,
+          status: user.status,
+          avatar: user.avatar,
+        }}
+        targetUser={targetContact}
+        onEndCall={handleEndCall}
+      />
+    );
+  }
 
   const onlineContacts = contacts.filter(c => c.status === 'online');
   const otherContacts = contacts.filter(c => c.status !== 'online');
@@ -190,6 +220,9 @@ export function Dashboard() {
           </div>
         </div>
       </main>
+
+      {/* Modal chiamata in arrivo */}
+      <IncomingCallModal />
     </div>
   );
 }

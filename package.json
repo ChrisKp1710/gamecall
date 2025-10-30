@@ -18,12 +18,16 @@
     "@tauri-apps/plugin-opener": "^2",
     "clsx": "^2.0.0",
     "lucide-react": "^0.263.1",
+    "peer": "^1.0.2",
+    "peerjs": "^1.5.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tailwind-merge": "^1.14.0"
+    "tailwind-merge": "^1.14.0",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",
+    "@types/peerjs": "^0.0.30",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.6.0",
