@@ -142,9 +142,16 @@ cargo shuttle init
 cargo shuttle deploy
 ```
 
+## Stato Implementazione
+- ✅ Registrazione e Login con JWT
+- ✅ Middleware autenticazione JWT
+- ✅ Gestione completa amicizie
+- ✅ Friend code generation univoco
+- ✅ Database schema PostgreSQL
+
 ## TODO
-- [ ] Middleware per autenticazione JWT
-- [ ] Implementazione completa route friends
 - [ ] WebSocket per notifiche real-time
 - [ ] Rate limiting
 - [ ] Tests
+- [ ] Avatar upload
+- [ ] Password reset
