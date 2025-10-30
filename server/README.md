@@ -77,17 +77,53 @@ Server disponibile su `http://localhost:3000`
 - `GET /auth/me` - Info utente corrente (richiede JWT)
 
 ### Friends
-- `GET /friends` - Lista amici (richiede JWT)
-- `POST /friends/add` - Aggiungi amico con friend code (richiede JWT)
+Tutte le route richiedono header: `Authorization: Bearer <jwt_token>`
+
+- `GET /friends` - Lista amici accettati
+  Response:
+  ```json
+  [
+    {
+      "id": "uuid",
+      "username": "mario",
+      "friend_code": "GC-A7B2-X9K4",
+      "avatar_url": null,
+      "status": "online",
+      "friendship_status": "accepted"
+    }
+  ]
+  ```
+
+- `POST /friends/add` - Invia richiesta amicizia con friend code
   ```json
   {
     "friend_code": "GC-A7B2-X9K4"
   }
   ```
-- `GET /friends/requests` - Richieste di amicizia in arrivo (richiede JWT)
-- `POST /friends/accept` - Accetta richiesta (richiede JWT)
-- `POST /friends/reject` - Rifiuta richiesta (richiede JWT)
-- `POST /friends/remove` - Rimuovi amico (richiede JWT)
+
+- `GET /friends/requests` - Richieste di amicizia in arrivo
+  Response: array di FriendResponse
+
+- `POST /friends/accept` - Accetta richiesta amicizia
+  ```json
+  {
+    "friendship_id": "uuid_del_richiedente"
+  }
+  ```
+
+- `POST /friends/reject` - Rifiuta richiesta amicizia
+  ```json
+  {
+    "friendship_id": "uuid_del_richiedente"
+  }
+  ```
+
+- `POST /friends/remove` - Rimuovi amico
+  ```json
+  {
+    "friendship_id": "uuid_dell_amico"
+  }
+  ```
 
 ### Health
 - `GET /health` - Health check

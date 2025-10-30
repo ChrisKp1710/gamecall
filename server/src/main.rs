@@ -1,4 +1,5 @@
 use axum::{
+    middleware as axum_middleware,
     routing::{get, post},
     Router,
 };
@@ -9,6 +10,7 @@ use tracing_subscriber;
 
 mod auth;
 mod friends;
+mod middleware;
 mod models;
 mod utils;
 
@@ -54,20 +56,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .allow_methods(Any)
         .allow_headers(Any);
 
-    // Setup router
-    let app = Router::new()
-        .route("/health", get(health_check))
-        // Auth routes
-        .route("/auth/register", post(auth::register))
-        .route("/auth/login", post(auth::login))
+    // Protected routes (require JWT)
+    let protected = Router::new()
         .route("/auth/me", get(auth::me))
-        // Friend routes
         .route("/friends", get(friends::list_friends))
         .route("/friends/add", post(friends::add_friend))
         .route("/friends/requests", get(friends::list_requests))
         .route("/friends/accept", post(friends::accept_request))
         .route("/friends/reject", post(friends::reject_request))
         .route("/friends/remove", post(friends::remove_friend))
+        .layer(axum_middleware::from_fn_with_state(
+            state.clone(),
+            middleware::auth_middleware,
+        ));
+
+    // Setup router
+    let app = Router::new()
+        .route("/health", get(health_check))
+        // Auth routes (public)
+        .route("/auth/register", post(auth::register))
+        .route("/auth/login", post(auth::login))
+        // Merge protected routes
+        .merge(protected)
         .layer(cors)
         .with_state(state);
 

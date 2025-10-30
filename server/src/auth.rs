@@ -4,7 +4,7 @@ use axum::{
     Json,
 };
 use serde::{Deserialize, Serialize};
-use jsonwebtoken::{encode, decode, Header, EncodingKey, DecodingKey, Validation};
+use jsonwebtoken::{encode, Header, EncodingKey};
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
@@ -15,7 +15,7 @@ use uuid::Uuid;
 
 use crate::{AppState, models::User, utils::generate_friend_code};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
     pub sub: String, // user_id
     pub username: String,
@@ -182,10 +182,23 @@ pub async fn login(
 
 pub async fn me(
     State(state): State<Arc<AppState>>,
-    // TODO: Estrarre user_id dal token JWT (serve middleware)
+    axum::Extension(claims): axum::Extension<Claims>,
 ) -> Result<Json<UserResponse>, (StatusCode, String)> {
-    // Per ora placeholder - servirà middleware per estrarre claims dal token
-    Err((StatusCode::NOT_IMPLEMENTED, "Not implemented yet".to_string()))
+    // Estrai user_id dal token JWT
+    let user_id = Uuid::parse_str(&claims.sub)
+        .map_err(|_| (StatusCode::BAD_REQUEST, "Invalid user ID".to_string()))?;
+
+    // Recupera utente dal database
+    let user = sqlx::query_as::<_, User>(
+        "SELECT * FROM users WHERE id = $1"
+    )
+    .bind(user_id)
+    .fetch_optional(&state.db)
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?
+    .ok_or((StatusCode::NOT_FOUND, "User not found".to_string()))?;
+
+    Ok(Json(user.into()))
 }
 
 fn create_jwt(secret: &str, user: &User) -> Result<String, (StatusCode, String)> {
