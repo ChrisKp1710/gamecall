@@ -5,7 +5,8 @@ export type CallType = 'audio' | 'video' | 'screen';
 
 export interface CallState {
   // Call info
-  isInCall: boolean;
+  isInCall: boolean; // true SOLO quando chiamata ATTIVA (entrambi hanno accettato)
+  isCalling: boolean; // true quando sto chiamando (attesa risposta)
   callType: CallType;
   caller: Contact | null;
   receiver: Contact | null;
@@ -44,6 +45,7 @@ export interface CallState {
 
 const initialState = {
   isInCall: false,
+  isCalling: false, // 🔥 Nuovo: stato "sto chiamando"
   callType: 'video' as CallType,
   caller: null,
   receiver: null,
@@ -63,7 +65,8 @@ export const useCallStore = create<CallState>((set, get) => ({
   startCall: (receiver, callType) => {
     console.log('📞 Avvio chiamata a:', receiver.username, 'Tipo:', callType);
     set({
-      isInCall: true,
+      isCalling: true, // 🔥 Setto "sto chiamando" (NON isInCall!)
+      isInCall: false, // Ancora NO chiamata attiva
       callType,
       receiver,
       isMuted: false,
@@ -95,7 +98,8 @@ export const useCallStore = create<CallState>((set, get) => ({
 
     console.log('✅ Chiamata accettata da:', incomingCallData.from.username);
     set({
-      isInCall: true,
+      isInCall: true, // 🔥 ORA sì, chiamata ATTIVA
+      isCalling: false,
       callType: incomingCallData.callType,
       caller: incomingCallData.from,
       showIncomingCallModal: false,

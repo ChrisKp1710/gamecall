@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 export interface MediaStreamState {
   stream: MediaStream | null;
   error: string | null;
+  warning: string | null; // ⚠️ Warning non fatale (es. mic occupato)
   isLoading: boolean;
   isAudioEnabled: boolean;
   isVideoEnabled: boolean;
@@ -17,6 +18,7 @@ export function useMediaStream() {
   const [state, setState] = useState<MediaStreamState>({
     stream: null,
     error: null,
+    warning: null,
     isLoading: false,
     isAudioEnabled: true,
     isVideoEnabled: true,
@@ -99,6 +101,7 @@ export function useMediaStream() {
       return mediaStream;
     } catch (err) {
       let errorMessage = 'Errore sconosciuto';
+      let isWarning = false; // 🔥 Distingue tra warning e errore fatale
 
       if (err instanceof DOMException) {
         switch (err.name) {
@@ -109,7 +112,44 @@ export function useMediaStream() {
             errorMessage = 'Nessuna camera o microfono trovato. Verifica che i dispositivi siano connessi.';
             break;
           case 'NotReadableError':
-            errorMessage = 'Camera o microfono già in uso da un\'altra applicazione.';
+            // ⚠️ CASO SPECIALE: Dispositivo già in uso
+            // Proviamo a ripartire SOLO con video (senza audio)
+            if (audio !== false) {
+              console.warn('⚠️ Microfono occupato, riprovo senza audio...');
+              try {
+                const videoOnlyStream = await navigator.mediaDevices.getUserMedia({
+                  audio: false,
+                  video: typeof video === 'object' ? video : {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    frameRate: { ideal: 30 },
+                    facingMode: 'user',
+                  },
+                });
+
+                streamRef.current = videoOnlyStream;
+                if (videoRef.current) {
+                  videoRef.current.srcObject = videoOnlyStream;
+                }
+
+                setState(prev => ({
+                  ...prev,
+                  stream: videoOnlyStream,
+                  isLoading: false,
+                  isAudioEnabled: false,
+                  isVideoEnabled: video !== false,
+                  warning: '⚠️ Microfono già in uso da un\'altra applicazione. Chiamata avviata solo con video.',
+                }));
+
+                await loadDevices();
+                return videoOnlyStream;
+              } catch (retryErr) {
+                console.error('❌ Fallito anche con solo video:', retryErr);
+                errorMessage = 'Camera o microfono già in uso da un\'altra applicazione.';
+              }
+            } else {
+              errorMessage = 'Camera o microfono già in uso da un\'altra applicazione.';
+            }
             break;
           case 'OverconstrainedError':
             errorMessage = 'Impossibile soddisfare le richieste per camera/microfono.';
@@ -126,7 +166,8 @@ export function useMediaStream() {
         ...prev,
         stream: null,
         isLoading: false,
-        error: errorMessage,
+        error: isWarning ? null : errorMessage,
+        warning: isWarning ? errorMessage : null,
       }));
 
       return null;

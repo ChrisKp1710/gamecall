@@ -1,14 +1,23 @@
-import { useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import { Contact } from '../../types';
 import { ContactCard } from './ContactCard';
 import { VideoCall } from '../call/VideoCall';
 import { IncomingCallModal } from '../call/IncomingCallModal';
+import { CallingScreen } from '../call/CallingScreen';
 import { useCallStore } from '../../stores/callStore';
+import { usePeerConnection } from '../../hooks/usePeerConnection';
 
 export function Dashboard() {
   const { user, logout } = useAuth();
-  const { isInCall, startCall, endCall } = useCallStore();
+  const { 
+    isInCall,
+    isCalling, // 🔥 Ora viene dallo store
+    incomingCallData,
+    startCall, 
+    endCall, 
+    setIncomingCall,
+  } = useCallStore();
   const [targetContact, setTargetContact] = useState<Contact | null>(null);
 
   // Contatti mock per demo
@@ -47,22 +56,69 @@ export function Dashboard() {
     },
   ]);
 
+  // 🔥 Inizializza peer connection per ricevere chiamate in arrivo
+  usePeerConnection(user?.id || '', {
+    onIncomingCall: (_call, fromPeerId) => {
+      console.log('📞 Chiamata in arrivo da:', fromPeerId);
+      
+      // Trova contatto dal peerId (formato: user-{id})
+      const callerId = fromPeerId.replace('user-', '');
+      const caller = contacts.find(c => c.id === callerId) || {
+        id: callerId,
+        username: 'Utente Sconosciuto',
+        status: 'online' as const,
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Unknown',
+      };
+      
+      // Mostra modale chiamata in arrivo
+      setIncomingCall(caller, 'video');
+    },
+  });
+
   const handleCall = (contactId: string) => {
     const contact = contacts.find(c => c.id === contactId);
     if (!contact) return;
 
     console.log(`📞 Avvio chiamata a ${contact.username}`);
     setTargetContact(contact);
+    
+    // Invia segnale chiamata → store setta isCalling=true
     startCall(contact, 'video');
   };
 
+  const handleCancelCall = () => {
+    console.log('❌ Chiamata annullata');
+    setTargetContact(null);
+    endCall(); // Store setta isCalling=false
+  };
+
+  // 🔥 Gestisce accettazione chiamata in arrivo
+  useEffect(() => {
+    // Se chiamata accettata (isInCall diventa true) e NON sto chiamando io (chiamata ricevuta)
+    if (isInCall && !isCalling && incomingCallData) {
+      console.log('✅ Chiamata in arrivo accettata, setto target contact');
+      setTargetContact(incomingCallData.from);
+    }
+  }, [isInCall, isCalling, incomingCallData]);
+
   const handleEndCall = () => {
     console.log('📞 Chiusura chiamata');
-    endCall();
+    endCall(); // Store gestisce reset di isCalling e isInCall
     setTargetContact(null);
   };
 
-  // Se in chiamata, mostra UI chiamata
+  // 🔥 Schermata "Chiamata in corso..." (attesa risposta)
+  if (isCalling && targetContact) {
+    return (
+      <CallingScreen
+        targetUsername={targetContact.username}
+        targetAvatar={targetContact.avatar}
+        onCancel={handleCancelCall}
+      />
+    );
+  }
+
+  // Se in chiamata ACCETTATA, mostra UI chiamata
   if (isInCall && targetContact && user) {
     return (
       <VideoCall
