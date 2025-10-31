@@ -18,7 +18,7 @@ export function Dashboard() {
     startCall,
     endCall,
   } = useCallStore();
-  const { friends } = useFriends();
+  const { friends, loadFriends } = useFriends();
   const [targetContact, setTargetContact] = useState<Contact | null>(null);
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
 
@@ -329,6 +329,7 @@ export function Dashboard() {
       <AddFriendModal
         isOpen={showAddFriendModal}
         onClose={() => setShowAddFriendModal(false)}
+        onFriendAdded={loadFriends}
       />
     </div>
   );

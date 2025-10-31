@@ -4,9 +4,10 @@ import { useFriends } from '../../hooks/useFriends';
 interface AddFriendModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onFriendAdded?: () => void;
 }
 
-export function AddFriendModal({ isOpen, onClose }: AddFriendModalProps) {
+export function AddFriendModal({ isOpen, onClose, onFriendAdded }: AddFriendModalProps) {
   const { addFriend } = useFriends();
   const [friendCode, setFriendCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -42,6 +43,11 @@ export function AddFriendModal({ isOpen, onClose }: AddFriendModalProps) {
       // Se arriviamo qui, l'aggiunta è riuscita
       setSuccess(true);
       setFriendCode('');
+
+      // Notifica il parent per ricaricare la lista
+      if (onFriendAdded) {
+        onFriendAdded();
+      }
 
       // Chiudi modal dopo 2 secondi
       setTimeout(() => {
