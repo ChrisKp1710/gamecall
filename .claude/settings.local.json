@@ -3,7 +3,25 @@
     "allow": [
       "Bash(cargo check:*)",
       "Bash(psql:*)",
-      "Bash(choco:*)"
+      "Bash(choco:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(\"C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe\" --version)",
+      "Bash(PGPASSWORD=admin \"C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe\":*)",
+      "Bash(cargo run:*)",
+      "Bash(curl:*)",
+      "Bash(fly version:*)",
+      "Bash(export PATH=\"$PATH:/c/Users/chris/.fly/bin\")",
+      "Bash(flyctl version:*)",
+      "Bash(flyctl auth:*)",
+      "Bash(flyctl launch:*)",
+      "Bash(flyctl apps:*)",
+      "Bash(flyctl postgres create:*)",
+      "Bash(flyctl postgres attach:*)",
+      "Bash(flyctl secrets set:*)",
+      "Bash(flyctl proxy:*)",
+      "Bash(PGPASSWORD=sPPtLTZKUtdShiC \"C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe\":*)",
+      "Bash(flyctl deploy:*)"
     ],
     "deny": [],
     "ask": []
