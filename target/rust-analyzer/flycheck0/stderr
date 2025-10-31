@@ -1,4 +1,33 @@
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.93s
+   0.726209800s  INFO prepare_target{force=false package_id=gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server) target="gamecall-server"}: cargo::core::compiler::fingerprint: fingerprint dirty for gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server)/Check { test: false }/TargetInner { name: "gamecall-server", doc: true, ..: with_path("C:\\Users\\chris\\Documents\\Chat\\gamecall\\server\\src\\main.rs", Edition2021) }
+   0.726253500s  INFO prepare_target{force=false package_id=gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server) target="gamecall-server"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.753800800s  INFO prepare_target{force=false package_id=jsonwebtoken v9.3.1 target="jsonwebtoken"}: cargo::core::compiler::fingerprint: fingerprint dirty for jsonwebtoken v9.3.1/Check { test: false }/TargetInner { ..: lib_target("jsonwebtoken", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\jsonwebtoken-9.3.1\\src\\lib.rs", Edition2021) }
+   0.753845100s  INFO prepare_target{force=false package_id=jsonwebtoken v9.3.1 target="jsonwebtoken"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.755062700s  INFO prepare_target{force=false package_id=ring v0.17.14 target="ring"}: cargo::core::compiler::fingerprint: fingerprint dirty for ring v0.17.14/Check { test: false }/TargetInner { ..: lib_target("ring", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\ring-0.17.14\\src\\lib.rs", Edition2021) }
+   0.755079000s  INFO prepare_target{force=false package_id=ring v0.17.14 target="ring"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.762262100s  INFO prepare_target{force=false package_id=sqlx v0.7.4 target="sqlx"}: cargo::core::compiler::fingerprint: fingerprint dirty for sqlx v0.7.4/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("sqlx", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\sqlx-0.7.4\\src\\lib.rs", Edition2021) }
+   0.762291900s  INFO prepare_target{force=false package_id=sqlx v0.7.4 target="sqlx"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.763957500s  INFO prepare_target{force=false package_id=sqlx-core v0.7.4 target="sqlx_core"}: cargo::core::compiler::fingerprint: fingerprint dirty for sqlx-core v0.7.4/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("sqlx_core", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\sqlx-core-0.7.4\\src\\lib.rs", Edition2021) }
+   0.763974100s  INFO prepare_target{force=false package_id=sqlx-core v0.7.4 target="sqlx_core"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.772507300s  INFO prepare_target{force=false package_id=rustls v0.21.12 target="rustls"}: cargo::core::compiler::fingerprint: fingerprint dirty for rustls v0.21.12/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("rustls", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\rustls-0.21.12\\src\\lib.rs", Edition2021) }
+   0.772537200s  INFO prepare_target{force=false package_id=rustls v0.21.12 target="rustls"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.774381700s  INFO prepare_target{force=false package_id=rustls-webpki v0.101.7 target="webpki"}: cargo::core::compiler::fingerprint: fingerprint dirty for rustls-webpki v0.101.7/Check { test: false }/TargetInner { ..: lib_target("webpki", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\rustls-webpki-0.101.7\\src\\lib.rs", Edition2021) }
+   0.774402400s  INFO prepare_target{force=false package_id=rustls-webpki v0.101.7 target="webpki"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.775156200s  INFO prepare_target{force=false package_id=sct v0.7.1 target="sct"}: cargo::core::compiler::fingerprint: fingerprint dirty for sct v0.7.1/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("sct", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\sct-0.7.1\\src\\lib.rs", Edition2021) }
+   0.775170700s  INFO prepare_target{force=false package_id=sct v0.7.1 target="sct"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.816495900s  INFO prepare_target{force=false package_id=sqlx-postgres v0.7.4 target="sqlx_postgres"}: cargo::core::compiler::fingerprint: fingerprint dirty for sqlx-postgres v0.7.4/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("sqlx_postgres", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\sqlx-postgres-0.7.4\\src\\lib.rs", Edition2021) }
+   0.816523000s  INFO prepare_target{force=false package_id=sqlx-postgres v0.7.4 target="sqlx_postgres"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.823588900s  INFO prepare_target{force=false package_id=gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server) target="gamecall-server"}: cargo::core::compiler::fingerprint: fingerprint dirty for gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server)/Check { test: true }/TargetInner { name: "gamecall-server", doc: true, ..: with_path("C:\\Users\\chris\\Documents\\Chat\\gamecall\\server\\src\\main.rs", Edition2021) }
+   0.823618900s  INFO prepare_target{force=false package_id=gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server) target="gamecall-server"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+    Checking ring v0.17.14
+    Checking rustls-webpki v0.101.7
+    Checking sct v0.7.1
+    Checking jsonwebtoken v9.3.1
+    Checking rustls v0.21.12
+    Checking sqlx-core v0.7.4
+    Checking sqlx-postgres v0.7.4
+    Checking sqlx v0.7.4
+    Checking gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.34s

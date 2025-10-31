@@ -21,7 +21,8 @@
       "Bash(flyctl secrets set:*)",
       "Bash(flyctl proxy:*)",
       "Bash(PGPASSWORD=sPPtLTZKUtdShiC \"C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe\":*)",
-      "Bash(flyctl deploy:*)"
+      "Bash(flyctl deploy:*)",
+      "Bash(cargo update)"
     ],
     "deny": [],
     "ask": []
