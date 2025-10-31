@@ -104,11 +104,13 @@ export function useFriends() {
     setError(null);
 
     try {
-      const response = await fetch(API_ENDPOINTS.removeFriend(friendId), {
-        method: 'DELETE',
+      const response = await fetch(API_ENDPOINTS.removeFriend, {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
+        body: JSON.stringify({ friendship_id: friendId }),
       });
 
       if (!response.ok) {

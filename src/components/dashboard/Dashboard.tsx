@@ -18,7 +18,7 @@ export function Dashboard() {
     startCall,
     endCall,
   } = useCallStore();
-  const { friends, loadFriends } = useFriends();
+  const { friends, loadFriends, removeFriend } = useFriends();
   const [targetContact, setTargetContact] = useState<Contact | null>(null);
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
 
@@ -76,6 +76,11 @@ export function Dashboard() {
     console.log('📞 Chiusura chiamata');
     endCall(); // Store gestisce reset di isCalling e isInCall
     setTargetContact(null);
+  };
+
+  const handleRemoveFriend = async (friendId: string) => {
+    console.log('🗑️ Rimozione amico:', friendId);
+    await removeFriend(friendId);
   };
 
   // 🔥 Schermata "Chiamata in corso..." (attesa risposta)
@@ -179,7 +184,7 @@ export function Dashboard() {
                       key={contact.id}
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
-                      <ContactCard contact={contact} onCall={handleCall} />
+                      <ContactCard contact={contact} onCall={handleCall} onRemove={handleRemoveFriend} />
                     </div>
                   ))
                 ) : (
@@ -200,7 +205,7 @@ export function Dashboard() {
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-5">Altri contatti</h2>
                 <div className="space-y-4">
                   {otherContacts.map(contact => (
-                    <ContactCard key={contact.id} contact={contact} onCall={handleCall} />
+                    <ContactCard key={contact.id} contact={contact} onCall={handleCall} onRemove={handleRemoveFriend} />
                   ))}
                 </div>
               </div>

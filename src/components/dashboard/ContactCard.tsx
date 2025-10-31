@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { Contact } from '../../types';
 
 interface ContactCardProps {
   contact: Contact;
   onCall: (contactId: string) => void;
+  onRemove?: (contactId: string) => void;
 }
 
-export function ContactCard({ contact, onCall }: ContactCardProps) {
+export function ContactCard({ contact, onCall, onRemove }: ContactCardProps) {
+  const [showConfirm, setShowConfirm] = useState(false);
   // ✨ Colori design system
   const statusConfig = {
     online: {
@@ -109,8 +112,63 @@ export function ContactCard({ contact, onCall }: ContactCardProps) {
               Non disponibile
             </div>
           )}
+
+          {/* Remove friend button */}
+          {onRemove && (
+            <button
+              onClick={() => setShowConfirm(true)}
+              className="p-3 bg-error-500/10 hover:bg-error-500 active:bg-error-600 text-error-600 hover:text-white rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 group/btn"
+              title="Rimuovi amico"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Confirm delete modal */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowConfirm(false)} />
+          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 animate-scale-in">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-error-100 dark:bg-error-900/30 rounded-xl">
+                <svg className="w-6 h-6 text-error-600 dark:text-error-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Rimuovi amico</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Sei sicuro?</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-6">
+              Vuoi rimuovere <span className="font-semibold text-gray-900 dark:text-white">{contact.username}</span> dalla tua lista amici? Anche loro non ti vedranno più nella loro lista.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold transition-colors"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={() => {
+                  if (onRemove) {
+                    onRemove(contact.id);
+                  }
+                  setShowConfirm(false);
+                }}
+                className="flex-1 px-4 py-2.5 bg-error-500 hover:bg-error-600 text-white rounded-xl font-semibold transition-colors shadow-lg shadow-error-500/30"
+              >
+                Rimuovi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

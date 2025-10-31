@@ -27,10 +27,10 @@ export const API_ENDPOINTS = {
   // Friends
   friends: `${API_BASE_URL}/friends`,
   addFriend: `${API_BASE_URL}/friends/add`,
+  removeFriend: `${API_BASE_URL}/friends/remove`,
   friendRequests: `${API_BASE_URL}/friends/requests`,
-  acceptFriend: (requestId: string) => `${API_BASE_URL}/friends/accept/${requestId}`,
-  rejectFriend: (requestId: string) => `${API_BASE_URL}/friends/reject/${requestId}`,
-  removeFriend: (friendId: string) => `${API_BASE_URL}/friends/remove/${friendId}`,
+  acceptFriend: `${API_BASE_URL}/friends/accept`,
+  rejectFriend: `${API_BASE_URL}/friends/reject`,
 };
 
 export default API_BASE_URL;
