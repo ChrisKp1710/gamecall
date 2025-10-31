@@ -29,7 +29,8 @@
       "Bash(awk:*)",
       "Bash(xargs kill:*)",
       "Bash(pkill:*)",
-      "Bash(npm run dev)"
+      "Bash(npm run dev)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
