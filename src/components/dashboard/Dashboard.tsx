@@ -5,6 +5,7 @@ import { ContactCard } from './ContactCard';
 import { VideoCall } from '../call/VideoCall';
 import { IncomingCallModal } from '../call/IncomingCallModal';
 import { CallingScreen } from '../call/CallingScreen';
+import { AddFriendModal } from './AddFriendModal';
 import { useCallStore } from '../../stores/callStore';
 import { useFriends } from '../../hooks/useFriends';
 
@@ -20,6 +21,7 @@ export function Dashboard() {
   } = useCallStore();
   const { friends, isLoading: loadingFriends } = useFriends();
   const [targetContact, setTargetContact] = useState<Contact | null>(null);
+  const [showAddFriendModal, setShowAddFriendModal] = useState(false);
 
   // 🔥 Inizializza peer connection per ricevere chiamate in arrivo
   // NOTA: NON usare qui usePeerConnection, viene già gestito in VideoCall!
@@ -208,6 +210,47 @@ export function Dashboard() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Friend Code Card */}
+            <div className="bg-gradient-to-br from-primary-600 to-accent-600 rounded-2xl p-6 text-white shadow-xl shadow-primary-500/30">
+              <div className="flex items-center gap-2 mb-3">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+                <h3 className="text-lg font-bold">Il tuo Friend Code</h3>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-4">
+                <p className="text-sm text-primary-100 mb-2">Condividi questo codice con i tuoi amici:</p>
+                <div className="flex items-center justify-between bg-white/20 rounded-lg p-3">
+                  <code className="text-2xl font-bold tracking-wider font-mono">
+                    {user?.friendCode || 'Loading...'}
+                  </code>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(user?.friendCode || '');
+                      // TODO: Mostra notifica "Copiato!"
+                    }}
+                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                    title="Copia"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowAddFriendModal(true)}
+                className="w-full px-4 py-3 bg-white hover:bg-primary-50 text-primary-600 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                Aggiungi Amico
+              </button>
+            </div>
+
             {/* Stats card */}
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-5 flex items-center gap-2">
@@ -282,6 +325,12 @@ export function Dashboard() {
 
       {/* Modal chiamata in arrivo */}
       <IncomingCallModal />
+
+      {/* Modal aggiungi amico */}
+      <AddFriendModal
+        isOpen={showAddFriendModal}
+        onClose={() => setShowAddFriendModal(false)}
+      />
     </div>
   );
 }
