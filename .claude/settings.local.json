@@ -23,7 +23,9 @@
       "Bash(PGPASSWORD=sPPtLTZKUtdShiC \"C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe\":*)",
       "Bash(flyctl deploy:*)",
       "Bash(cargo update)",
-      "Bash(PGPASSWORD=x4KkYkFFKP1V8md \"C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe\":*)"
+      "Bash(PGPASSWORD=x4KkYkFFKP1V8md \"C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe\":*)",
+      "Bash(flyctl status:*)",
+      "Bash(npm run tauri:*)"
     ],
     "deny": [],
     "ask": []

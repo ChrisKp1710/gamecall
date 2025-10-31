@@ -7,10 +7,23 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+peerjs-server/node_modules
+
+# Build outputs
 dist
 dist-ssr
 *.local
+src-tauri/target/
+src-tauri/WixTools/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+server/.env
+peerjs-server/.env
 
 # Editor directories and files
 .vscode/*
@@ -23,7 +36,21 @@ dist-ssr
 *.sln
 *.sw?
 
-# Backend server (deployed separately)
+# Backend server (Rust)
 server/target/
 server/Cargo.lock
-server/.env
+
+# Tauri specifics
+src-tauri/target/
+src-tauri/WixTools/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Fly.io
+.fly/
+
+# Testing
+coverage/
+.nyc_output/
