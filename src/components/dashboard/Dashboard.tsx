@@ -6,54 +6,20 @@ import { VideoCall } from '../call/VideoCall';
 import { IncomingCallModal } from '../call/IncomingCallModal';
 import { CallingScreen } from '../call/CallingScreen';
 import { useCallStore } from '../../stores/callStore';
+import { useFriends } from '../../hooks/useFriends';
 
 export function Dashboard() {
   const { user, logout } = useAuth();
-  const { 
+  const {
     isInCall,
-    isCalling, // 🔥 Ora viene dallo store
+    isCalling,
     incomingCallData,
-    startCall, 
-    endCall, 
+    startCall,
+    endCall,
     setIncomingCall,
   } = useCallStore();
+  const { friends, isLoading: loadingFriends } = useFriends();
   const [targetContact, setTargetContact] = useState<Contact | null>(null);
-
-  // Contatti mock per demo
-  const [contacts] = useState<Contact[]>([
-    {
-      id: '1',
-      username: 'Marco_Gaming',
-      status: 'online',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Marco',
-      isFavorite: true,
-    },
-    {
-      id: '2',
-      username: 'LucaStreamer',
-      status: 'in-call',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Luca',
-    },
-    {
-      id: '3',
-      username: 'GiuliaGamer',
-      status: 'online',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Giulia',
-      isFavorite: true,
-    },
-    {
-      id: '4',
-      username: 'AlessioProPlayer',
-      status: 'busy',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alessio',
-    },
-    {
-      id: '5',
-      username: 'ChiaraTV',
-      status: 'offline',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Chiara',
-    },
-  ]);
 
   // 🔥 Inizializza peer connection per ricevere chiamate in arrivo
   // NOTA: NON usare qui usePeerConnection, viene già gestito in VideoCall!
@@ -80,12 +46,12 @@ export function Dashboard() {
   // TODO: Implementare sistema di segnalazione centralizzato per chiamate in arrivo
 
   const handleCall = (contactId: string) => {
-    const contact = contacts.find(c => c.id === contactId);
+    const contact = friends.find(c => c.id === contactId);
     if (!contact) return;
 
     console.log(`📞 Avvio chiamata a ${contact.username}`);
     setTargetContact(contact);
-    
+
     // Invia segnale chiamata → store setta isCalling=true
     startCall(contact, 'video');
   };
@@ -138,8 +104,8 @@ export function Dashboard() {
     );
   }
 
-  const onlineContacts = contacts.filter(c => c.status === 'online');
-  const otherContacts = contacts.filter(c => c.status !== 'online');
+  const onlineContacts = friends.filter(c => c.status === 'online');
+  const otherContacts = friends.filter(c => c.status !== 'online');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 animate-fade-in">
@@ -253,7 +219,7 @@ export function Dashboard() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                   <span className="text-gray-700 dark:text-gray-300 font-medium">Amici totali</span>
-                  <span className="text-2xl font-bold text-gray-900 dark:text-white">{contacts.length}</span>
+                  <span className="text-2xl font-bold text-gray-900 dark:text-white">{friends.length}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-success-50 dark:bg-success-900/20 rounded-xl">
                   <span className="text-success-700 dark:text-success-300 font-medium">Online</span>
