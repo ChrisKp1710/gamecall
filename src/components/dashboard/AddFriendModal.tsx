@@ -37,21 +37,19 @@ export function AddFriendModal({ isOpen, onClose }: AddFriendModalProps) {
     setIsLoading(true);
 
     try {
-      const result = await addFriend(cleanCode);
+      await addFriend(cleanCode);
 
-      if (result) {
-        setSuccess(true);
-        setFriendCode('');
+      // Se arriviamo qui, l'aggiunta è riuscita
+      setSuccess(true);
+      setFriendCode('');
 
-        // Chiudi modal dopo 2 secondi
-        setTimeout(() => {
-          onClose();
-          setSuccess(false);
-        }, 2000);
-      } else {
-        setError('Impossibile aggiungere amico. Friend Code non valido o utente già aggiunto.');
-      }
+      // Chiudi modal dopo 2 secondi
+      setTimeout(() => {
+        onClose();
+        setSuccess(false);
+      }, 2000);
     } catch (err) {
+      // L'errore è già tradotto in italiano da useFriends
       setError(err instanceof Error ? err.message : 'Errore durante l\'aggiunta dell\'amico');
     } finally {
       setIsLoading(false);

@@ -70,7 +70,18 @@ export function useFriends() {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText || 'Errore nell\'aggiunta dell\'amico');
+
+        // Traduci errori backend in italiano
+        let errorMessage = errorText;
+        if (errorText.includes('Cannot add yourself')) {
+          errorMessage = 'Non puoi aggiungere te stesso come amico!';
+        } else if (errorText.includes('already exists') || errorText.includes('CONFLICT')) {
+          errorMessage = 'Hai già aggiunto questo amico!';
+        } else if (errorText.includes('not found')) {
+          errorMessage = 'Friend Code non valido o inesistente';
+        }
+
+        throw new Error(errorMessage);
       }
 
       // Ricarica lista amici
@@ -79,7 +90,7 @@ export function useFriends() {
     } catch (err) {
       console.error('Errore aggiunta amico:', err);
       setError(err instanceof Error ? err.message : 'Errore sconosciuto');
-      return false;
+      throw err; // Rilancia per gestione nel componente
     } finally {
       setIsLoading(false);
     }
