@@ -17,9 +17,8 @@ export function Dashboard() {
     incomingCallData,
     startCall,
     endCall,
-    setIncomingCall,
   } = useCallStore();
-  const { friends, isLoading: loadingFriends } = useFriends();
+  const { friends } = useFriends();
   const [targetContact, setTargetContact] = useState<Contact | null>(null);
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
 

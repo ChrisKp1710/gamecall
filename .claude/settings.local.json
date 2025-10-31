@@ -28,7 +28,8 @@
       "Bash(npm run tauri:*)",
       "Bash(awk:*)",
       "Bash(xargs kill:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(npm run dev)"
     ],
     "deny": [],
     "ask": []
