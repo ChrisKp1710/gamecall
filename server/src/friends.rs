@@ -87,9 +87,9 @@ pub async fn add_friend(
         return Err((StatusCode::BAD_REQUEST, "Cannot add yourself as friend".to_string()));
     }
 
-    // Controlla se già amici o richiesta pending
+    // Controlla se già amici (controlla entrambe le direzioni)
     let existing = sqlx::query_scalar::<_, i64>(
-        "SELECT COUNT(*) FROM friendships WHERE user_id = $1 AND friend_id = $2"
+        "SELECT COUNT(*) FROM friendships WHERE (user_id = $1 AND friend_id = $2) OR (user_id = $2 AND friend_id = $1)"
     )
     .bind(user_id)
     .bind(friend.id)
@@ -98,20 +98,37 @@ pub async fn add_friend(
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
     if existing > 0 {
-        return Err((StatusCode::CONFLICT, "Friend request already exists".to_string()));
+        return Err((StatusCode::CONFLICT, "Friendship already exists".to_string()));
     }
 
-    // Crea richiesta di amicizia
-    let friendship_id = Uuid::new_v4();
+    // Crea amicizia bidirezionale accettata automaticamente
+    let friendship_id_1 = Uuid::new_v4();
+    let friendship_id_2 = Uuid::new_v4();
+
+    // Amicizia da user_id a friend_id
     sqlx::query(
         r#"
         INSERT INTO friendships (id, user_id, friend_id, status)
-        VALUES ($1, $2, $3, 'pending')
+        VALUES ($1, $2, $3, 'accepted')
         "#
     )
-    .bind(friendship_id)
+    .bind(friendship_id_1)
     .bind(user_id)
     .bind(friend.id)
+    .execute(&state.db)
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    // Amicizia reciproca da friend_id a user_id
+    sqlx::query(
+        r#"
+        INSERT INTO friendships (id, user_id, friend_id, status)
+        VALUES ($1, $2, $3, 'accepted')
+        "#
+    )
+    .bind(friendship_id_2)
+    .bind(friend.id)
+    .bind(user_id)
     .execute(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
@@ -122,7 +139,7 @@ pub async fn add_friend(
         friend_code: friend.friend_code,
         avatar_url: friend.avatar_url,
         status: friend.status,
-        friendship_status: "pending".to_string(),
+        friendship_status: "accepted".to_string(),
     }))
 }
 
