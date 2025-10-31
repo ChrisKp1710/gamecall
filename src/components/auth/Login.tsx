@@ -29,11 +29,13 @@ export function Login() {
       }
     }
 
-    if (touched.password && password.length > 0) {
-      if (mode === 'register' && password.length < 6) {
-        errors.password = 'Password troppo corta (min 6 caratteri)';
-      } else if (password.length < 3) {
-        errors.password = 'Password troppo corta';
+    if (touched.password && password.length > 0 && mode === 'register') {
+      if (password.length < 8) {
+        errors.password = 'Password troppo corta (min 8 caratteri)';
+      } else if (!/[a-zA-Z]/.test(password)) {
+        errors.password = 'Deve contenere almeno una lettera';
+      } else if (!/[0-9]/.test(password)) {
+        errors.password = 'Deve contenere almeno un numero';
       }
     }
 

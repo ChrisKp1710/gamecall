@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState } from '../types';
 import { API_ENDPOINTS } from '../config/api';
 
@@ -30,6 +30,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Sincronizza localStorage tra tab
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'token' || e.key === 'user') {
+        // Se token o user cambiano in altra tab, aggiorna stato
+        const newUser = localStorage.getItem('user');
+        const newToken = localStorage.getItem('token');
+
+        setAuthState({
+          user: newUser ? JSON.parse(newUser) : null,
+          token: newToken,
+          isAuthenticated: !!newToken,
+        });
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Login con API reale
   const login = async (username: string, password: string): Promise<boolean> => {
@@ -90,17 +110,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      // Validazione locale
+      // Validazione locale username
       if (username.length < 3) {
         throw new Error('Username troppo corto (min 3 caratteri)');
       }
 
-      if (password.length < 6) {
-        throw new Error('Password troppo corta (min 6 caratteri)');
+      if (username.length > 20) {
+        throw new Error('Username troppo lungo (max 20 caratteri)');
       }
 
       if (!/^[a-zA-Z0-9_]+$/.test(username)) {
         throw new Error('Username può contenere solo lettere, numeri e underscore');
+      }
+
+      // Validazione password sicura
+      if (password.length < 8) {
+        throw new Error('Password troppo corta (min 8 caratteri)');
+      }
+
+      if (password.length > 128) {
+        throw new Error('Password troppo lunga (max 128 caratteri)');
+      }
+
+      // Password deve contenere almeno una lettera e un numero
+      if (!/[a-zA-Z]/.test(password)) {
+        throw new Error('Password deve contenere almeno una lettera');
+      }
+
+      if (!/[0-9]/.test(password)) {
+        throw new Error('Password deve contenere almeno un numero');
+      }
+
+      // Opzionale: controlla password comuni
+      const commonPasswords = ['password', '12345678', 'qwerty123', 'admin123'];
+      if (commonPasswords.some(p => password.toLowerCase().includes(p))) {
+        throw new Error('Password troppo comune, scegline una più sicura');
       }
 
       const response = await fetch(API_ENDPOINTS.register, {

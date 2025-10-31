@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Contact } from '../../types';
 import { ContactCard } from './ContactCard';
@@ -71,7 +71,7 @@ export function Dashboard() {
 
   // TODO: Implementare sistema di segnalazione centralizzato per chiamate in arrivo
 
-  const handleCall = (contactId: string) => {
+  const handleCall = useCallback((contactId: string) => {
     const contact = friends.find(c => c.id === contactId);
     if (!contact) return;
 
@@ -80,13 +80,13 @@ export function Dashboard() {
 
     // Invia segnale chiamata → store setta isCalling=true
     startCall(contact, 'video');
-  };
+  }, [friends, startCall]);
 
-  const handleCancelCall = () => {
+  const handleCancelCall = useCallback(() => {
     console.log('❌ Chiamata annullata');
     setTargetContact(null);
     endCall(); // Store setta isCalling=false
-  };
+  }, [endCall]);
 
   // 🔥 Gestisce accettazione chiamata in arrivo
   useEffect(() => {
@@ -97,16 +97,16 @@ export function Dashboard() {
     }
   }, [isInCall, isCalling, incomingCallData]);
 
-  const handleEndCall = () => {
+  const handleEndCall = useCallback(() => {
     console.log('📞 Chiusura chiamata');
     endCall(); // Store gestisce reset di isCalling e isInCall
     setTargetContact(null);
-  };
+  }, [endCall]);
 
-  const handleRemoveFriend = async (friendId: string) => {
+  const handleRemoveFriend = useCallback(async (friendId: string) => {
     console.log('🗑️ Rimozione amico:', friendId);
     await removeFriend(friendId);
-  };
+  }, [removeFriend]);
 
   // 🔥 Schermata "Chiamata in corso..." (attesa risposta)
   if (isCalling && targetContact) {
@@ -135,8 +135,9 @@ export function Dashboard() {
     );
   }
 
-  const onlineContacts = friends.filter(c => c.status === 'online');
-  const otherContacts = friends.filter(c => c.status !== 'online');
+  // Memoizza liste filtrate per evitare re-render
+  const onlineContacts = useMemo(() => friends.filter(c => c.status === 'online'), [friends]);
+  const otherContacts = useMemo(() => friends.filter(c => c.status !== 'online'), [friends]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 animate-fade-in">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Contact } from '../../types';
 
 interface ContactCardProps {
@@ -7,7 +7,7 @@ interface ContactCardProps {
   onRemove?: (contactId: string) => void;
 }
 
-export function ContactCard({ contact, onCall, onRemove }: ContactCardProps) {
+export const ContactCard = memo(function ContactCard({ contact, onCall, onRemove }: ContactCardProps) {
   const [showConfirm, setShowConfirm] = useState(false);
   // ✨ Colori design system
   const statusConfig = {
@@ -171,4 +171,4 @@ export function ContactCard({ contact, onCall, onRemove }: ContactCardProps) {
       )}
     </div>
   );
-}
+});
