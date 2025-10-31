@@ -13,11 +13,13 @@ mod friends;
 mod middleware;
 mod models;
 mod utils;
+mod websocket;
 
 #[derive(Clone)]
 pub struct AppState {
     pub db: sqlx::PgPool,
     pub jwt_secret: String,
+    pub ws_state: websocket::WsState,
 }
 
 #[tokio::main]
@@ -44,10 +46,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::info!("Connected to database");
 
+    // Crea WebSocket state
+    let ws_state = websocket::WsState::new();
+
     // State condiviso
     let state = Arc::new(AppState {
         db: pool,
         jwt_secret,
+        ws_state: ws_state.clone(),
     });
 
     // Setup CORS
@@ -55,6 +61,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .allow_origin(Any)
         .allow_methods(Any)
         .allow_headers(Any);
+
+    // WebSocket route (protected)
+    let ws_route = Router::new()
+        .route("/ws", get(websocket::ws_handler))
+        .layer(axum_middleware::from_fn_with_state(
+            state.clone(),
+            middleware::auth_middleware,
+        ))
+        .with_state(ws_state);
 
     // Protected routes (require JWT)
     let protected = Router::new()
@@ -78,6 +93,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/auth/login", post(auth::login))
         // Merge protected routes
         .merge(protected)
+        // Merge WebSocket route
+        .merge(ws_route)
         .layer(cors)
         .with_state(state);
 

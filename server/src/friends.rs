@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use uuid::Uuid;
 
-use crate::{AppState, auth::Claims, models::User};
+use crate::{AppState, auth::Claims, models::User, websocket::WsMessage};
 
 #[derive(Debug, Deserialize)]
 pub struct AddFriendRequest {
@@ -132,6 +132,25 @@ pub async fn add_friend(
     .execute(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    // Ottieni informazioni dell'utente che ha aggiunto
+    let adder = sqlx::query_as::<_, User>(
+        "SELECT * FROM users WHERE id = $1"
+    )
+    .bind(user_id)
+    .fetch_one(&state.db)
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    // Invia notifica WebSocket all'amico aggiunto
+    state.ws_state.send_to_user(
+        &friend.id.to_string(),
+        &WsMessage::FriendAdded {
+            friend_id: user_id.to_string(),
+            friend_username: adder.username.clone(),
+            friend_code: adder.friend_code.clone(),
+        }
+    ).await;
 
     Ok(Json(FriendResponse {
         id: friend.id.to_string(),
@@ -272,6 +291,14 @@ pub async fn remove_friend(
     .execute(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    // Invia notifica WebSocket all'amico rimosso
+    state.ws_state.send_to_user(
+        &friend_id.to_string(),
+        &WsMessage::FriendRemoved {
+            friend_id: user_id.to_string(),
+        }
+    ).await;
 
     Ok(StatusCode::OK)
 }

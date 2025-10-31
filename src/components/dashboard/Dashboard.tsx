@@ -8,6 +8,7 @@ import { CallingScreen } from '../call/CallingScreen';
 import { AddFriendModal } from './AddFriendModal';
 import { useCallStore } from '../../stores/callStore';
 import { useFriends } from '../../hooks/useFriends';
+import { useWebSocket } from '../../hooks/useWebSocket';
 
 export function Dashboard() {
   const { user, logout } = useAuth();
@@ -21,6 +22,30 @@ export function Dashboard() {
   const { friends, loadFriends, removeFriend } = useFriends();
   const [targetContact, setTargetContact] = useState<Contact | null>(null);
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
+
+  // 🔥 WebSocket per aggiornamenti real-time
+  useWebSocket({
+    onFriendAdded: (friendId, friendUsername, friendCode) => {
+      console.log('✅ [WebSocket] Nuovo amico aggiunto:', friendUsername);
+      // Ricarica lista amici
+      loadFriends();
+    },
+    onFriendRemoved: (friendId) => {
+      console.log('❌ [WebSocket] Amico rimosso:', friendId);
+      // Ricarica lista amici
+      loadFriends();
+    },
+    onUserOnline: (userId) => {
+      console.log('🟢 [WebSocket] Utente online:', userId);
+      // Aggiorna stato utente in locale (TODO: ottimizzare con aggiornamento locale)
+      loadFriends();
+    },
+    onUserOffline: (userId) => {
+      console.log('🔴 [WebSocket] Utente offline:', userId);
+      // Aggiorna stato utente in locale (TODO: ottimizzare con aggiornamento locale)
+      loadFriends();
+    },
+  });
 
   // 🔥 Inizializza peer connection per ricevere chiamate in arrivo
   // NOTA: NON usare qui usePeerConnection, viene già gestito in VideoCall!

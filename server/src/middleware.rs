@@ -15,21 +15,38 @@ pub async fn auth_middleware(
     mut req: Request,
     next: Next,
 ) -> Result<Response, (StatusCode, String)> {
-    // Estrai token dall'header Authorization
-    let auth_header = req
+    // Prova prima con header Authorization
+    let token = if let Some(auth_header) = req
         .headers()
         .get(header::AUTHORIZATION)
         .and_then(|h| h.to_str().ok())
-        .ok_or((StatusCode::UNAUTHORIZED, "Missing authorization header".to_string()))?;
+    {
+        // Verifica formato "Bearer <token>"
+        auth_header
+            .strip_prefix("Bearer ")
+            .ok_or((StatusCode::UNAUTHORIZED, "Invalid authorization format".to_string()))?
+            .to_string()
+    } else {
+        // Se non c'è header, prova con query parameter (per WebSocket)
+        let uri = req.uri();
+        let query = uri.query().unwrap_or("");
 
-    // Verifica formato "Bearer <token>"
-    let token = auth_header
-        .strip_prefix("Bearer ")
-        .ok_or((StatusCode::UNAUTHORIZED, "Invalid authorization format".to_string()))?;
+        query
+            .split('&')
+            .find_map(|param| {
+                let mut parts = param.split('=');
+                if parts.next() == Some("token") {
+                    parts.next().map(|t| t.to_string())
+                } else {
+                    None
+                }
+            })
+            .ok_or((StatusCode::UNAUTHORIZED, "Missing authorization".to_string()))?
+    };
 
     // Valida JWT
     let token_data = decode::<Claims>(
-        token,
+        &token,
         &DecodingKey::from_secret(state.jwt_secret.as_ref()),
         &Validation::default(),
     )
