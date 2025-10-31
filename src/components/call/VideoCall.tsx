@@ -56,32 +56,27 @@ export function VideoCall({ currentUser, targetUser, onEndCall }: VideoCallProps
     setCallDuration: setStoreDuration,
   } = useCallStore();
 
-  // Avvia stream locale all'inizio
+  // Avvia stream locale all'inizio (UNA SOLA VOLTA)
   useEffect(() => {
     console.log('🎥 Avvio stream locale...');
     startStream(true, true);
 
     return () => {
       console.log('🧹 Cleanup VideoCall component...');
-      
-      // Ferma tutti i tracks attivi
-      if (localStream) {
-        localStream.getTracks().forEach(track => {
-          console.log(`🛑 Cleanup: fermando ${track.kind} track`);
-          track.stop();
-        });
-      }
-      
-      stopStream();
-      
+
+      // Cleanup timer
       if (callTimerRef.current) {
         clearInterval(callTimerRef.current);
       }
       if (callTimeoutRef.current) {
         clearTimeout(callTimeoutRef.current);
       }
+
+      // stopStream fa già il cleanup dei tracks
+      stopStream();
     };
-  }, [localStream]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // SOLO al mount, MAI localStream in dependencies!
 
   // Collega stream remoto al video element
   useEffect(() => {

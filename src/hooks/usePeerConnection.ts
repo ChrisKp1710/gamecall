@@ -342,14 +342,20 @@ export function usePeerConnection(userId: string, options: UsePeerConnectionOpti
     });
   }, []);
 
-  // Inizializza peer all'avvio
+  // Inizializza peer all'avvio (SOLO UNA VOLTA per userId)
   useEffect(() => {
+    if (!userId) {
+      console.warn('⚠️ userId non fornito, peer non inizializzato');
+      return;
+    }
+
     initializePeer();
 
     return () => {
       cleanup();
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]); // Re-inizializza SOLO se userId cambia
 
   return {
     ...state,

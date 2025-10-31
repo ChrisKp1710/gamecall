@@ -6,7 +6,6 @@ import { VideoCall } from '../call/VideoCall';
 import { IncomingCallModal } from '../call/IncomingCallModal';
 import { CallingScreen } from '../call/CallingScreen';
 import { useCallStore } from '../../stores/callStore';
-import { usePeerConnection } from '../../hooks/usePeerConnection';
 
 export function Dashboard() {
   const { user, logout } = useAuth();
@@ -57,11 +56,14 @@ export function Dashboard() {
   ]);
 
   // 🔥 Inizializza peer connection per ricevere chiamate in arrivo
+  // NOTA: NON usare qui usePeerConnection, viene già gestito in VideoCall!
+  // Questo causava doppia inizializzazione. Lo commentiamo.
+
+  /* RIMOSSO: causa doppia inizializzazione peer
   usePeerConnection(user?.id || '', {
     onIncomingCall: (_call, fromPeerId) => {
       console.log('📞 Chiamata in arrivo da:', fromPeerId);
-      
-      // Trova contatto dal peerId (formato: user-{id})
+
       const callerId = fromPeerId.replace('user-', '');
       const caller = contacts.find(c => c.id === callerId) || {
         id: callerId,
@@ -69,11 +71,13 @@ export function Dashboard() {
         status: 'online' as const,
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Unknown',
       };
-      
-      // Mostra modale chiamata in arrivo
+
       setIncomingCall(caller, 'video');
     },
   });
+  */
+
+  // TODO: Implementare sistema di segnalazione centralizzato per chiamate in arrivo
 
   const handleCall = (contactId: string) => {
     const contact = contacts.find(c => c.id === contactId);
@@ -138,30 +142,35 @@ export function Dashboard() {
   const otherContacts = contacts.filter(c => c.status !== 'online');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 animate-fade-in">
       {/* Header */}
-      <header className="bg-gray-800/50 backdrop-blur-lg border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
             {/* Logo + User info */}
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
               </div>
-              
+
               <div>
-                <h1 className="text-xl font-bold text-white">GameCall</h1>
-                <p className="text-sm text-gray-400">Ciao, {user?.username}!</p>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">GameCall</h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                  Ciao, <span className="text-primary-600 dark:text-primary-400">{user?.username}</span>!
+                </p>
               </div>
             </div>
 
             {/* Actions */}
             <div className="flex items-center gap-3">
               {/* Settings */}
-              <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors" title="Impostazioni">
-                <svg className="w-6 h-6 text-gray-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button
+                className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 group"
+                title="Impostazioni"
+              >
+                <svg className="w-6 h-6 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white group-hover:rotate-90 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -170,7 +179,7 @@ export function Dashboard() {
               {/* Logout */}
               <button
                 onClick={logout}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
+                className="px-5 py-2.5 bg-gradient-to-r from-error-600 to-error-500 hover:from-error-700 hover:to-error-600 text-white rounded-xl transition-all duration-200 font-semibold shadow-lg shadow-error-500/30 hover:shadow-xl hover:shadow-error-500/40 transform hover:scale-105 active:scale-95"
               >
                 Logout
               </button>
@@ -186,21 +195,33 @@ export function Dashboard() {
           <div className="lg:col-span-2 space-y-6">
             {/* Online contacts */}
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-success-500"></span>
+                  </span>
                   Online ({onlineContacts.length})
                 </h2>
               </div>
-              
-              <div className="space-y-3">
+
+              <div className="space-y-4">
                 {onlineContacts.length > 0 ? (
-                  onlineContacts.map(contact => (
-                    <ContactCard key={contact.id} contact={contact} onCall={handleCall} />
+                  onlineContacts.map((contact, index) => (
+                    <div
+                      key={contact.id}
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      <ContactCard contact={contact} onCall={handleCall} />
+                    </div>
                   ))
                 ) : (
-                  <div className="bg-gray-800/30 rounded-xl p-8 text-center">
-                    <p className="text-gray-400">Nessun amico online al momento</p>
+                  <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-2xl p-12 text-center border border-gray-200/50 dark:border-gray-700/50">
+                    <svg className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <p className="text-gray-600 dark:text-gray-400 font-medium">Nessun amico online al momento</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">Torna più tardi o aggiungi nuovi contatti</p>
                   </div>
                 )}
               </div>
@@ -209,8 +230,8 @@ export function Dashboard() {
             {/* Other contacts */}
             {otherContacts.length > 0 && (
               <div>
-                <h2 className="text-xl font-bold text-white mb-4">Altri contatti</h2>
-                <div className="space-y-3">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-5">Altri contatti</h2>
+                <div className="space-y-4">
                   {otherContacts.map(contact => (
                     <ContactCard key={contact.id} contact={contact} onCall={handleCall} />
                   ))}
@@ -222,54 +243,70 @@ export function Dashboard() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Stats card */}
-            <div className="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4">Statistiche</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Amici totali</span>
-                  <span className="text-white font-bold">{contacts.length}</span>
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-5 flex items-center gap-2">
+                <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Statistiche
+              </h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">Amici totali</span>
+                  <span className="text-2xl font-bold text-gray-900 dark:text-white">{contacts.length}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Online</span>
-                  <span className="text-green-400 font-bold">{onlineContacts.length}</span>
+                <div className="flex justify-between items-center p-3 bg-success-50 dark:bg-success-900/20 rounded-xl">
+                  <span className="text-success-700 dark:text-success-300 font-medium">Online</span>
+                  <span className="text-2xl font-bold text-success-600 dark:text-success-400">{onlineContacts.length}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Chiamate oggi</span>
-                  <span className="text-purple-400 font-bold">0</span>
+                <div className="flex justify-between items-center p-3 bg-accent-50 dark:bg-accent-900/20 rounded-xl">
+                  <span className="text-accent-700 dark:text-accent-300 font-medium">Chiamate oggi</span>
+                  <span className="text-2xl font-bold text-accent-600 dark:text-accent-400">0</span>
                 </div>
               </div>
             </div>
 
             {/* Quick actions */}
-            <div className="bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl p-6 text-white">
-              <h3 className="text-lg font-semibold mb-2">🚀 Coming Soon</h3>
-              <p className="text-sm text-purple-100 mb-4">
-                Presto potrai effettuare videochiamate, condividere lo schermo e chattare con i tuoi amici!
+            <div className="bg-gradient-to-br from-primary-600 via-primary-500 to-accent-500 rounded-2xl p-6 text-white shadow-xl shadow-primary-500/30">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">🚀</span>
+                <h3 className="text-xl font-bold">In arrivo...</h3>
+              </div>
+              <p className="text-sm text-primary-100 mb-5 leading-relaxed">
+                Funzionalità avanzate in sviluppo per migliorare la tua esperienza!
               </p>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span>Videochiamate HD</span>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center gap-3 p-2 bg-white/10 backdrop-blur-sm rounded-lg">
+                  <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="font-medium">Videochiamate HD 1080p</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span>Condivisione schermo</span>
+                <div className="flex items-center gap-3 p-2 bg-white/10 backdrop-blur-sm rounded-lg">
+                  <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="font-medium">Condivisione schermo gaming</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span>Chat crittografata</span>
+                <div className="flex items-center gap-3 p-2 bg-white/10 backdrop-blur-sm rounded-lg">
+                  <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="font-medium">Chat crittografata E2E</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span>Picture-in-Picture</span>
+                <div className="flex items-center gap-3 p-2 bg-white/10 backdrop-blur-sm rounded-lg">
+                  <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="font-medium">Picture-in-Picture overlay</span>
                 </div>
               </div>
             </div>
