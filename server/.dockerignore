@@ -1,0 +1,9 @@
+target/
+.env
+.git/
+*.log
+*.md
+fly.toml
+setup-db.ps1
+setup-db.bat
+deploy.sh

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { User, AuthState } from '../types';
+import { API_ENDPOINTS } from '../config/api';
 
 interface AuthContextType {
   user: User | null;
@@ -19,7 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Recupera dati da localStorage se presenti
     const savedUser = localStorage.getItem('user');
     const savedToken = localStorage.getItem('token');
-    
+
     return {
       user: savedUser ? JSON.parse(savedUser) : null,
       token: savedToken,
@@ -30,27 +31,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Login mock
+  // Login con API reale
   const login = async (username: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const response = await fetch(API_ENDPOINTS.login, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-      if (password.length < 3) {
-        throw new Error('Password troppo corta');
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(errorData || 'Errore durante il login');
       }
 
+      const data = await response.json();
+
+      // Il backend restituisce: { token: string, user: { id, username, friend_code, avatar_url, status } }
       const user: User = {
-        id: `user-${Date.now()}`,
-        username,
-        status: 'online',
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
+        id: data.user.id,
+        username: data.user.username,
+        status: data.user.status || 'online',
+        avatar: data.user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.user.username}`,
+        friendCode: data.user.friend_code,
       };
 
-      const token = `mock-token-${Date.now()}`;
+      const token = data.token;
 
+      // Salva in localStorage
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('token', token);
 
@@ -62,21 +75,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Errore login');
+      const errorMessage = err instanceof Error ? err.message : 'Errore login';
+      setError(errorMessage);
+      console.error('Login error:', err);
       return false;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Registrazione mock
+  // Registrazione con API reale
   const register = async (username: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-
+      // Validazione locale
       if (username.length < 3) {
         throw new Error('Username troppo corto (min 3 caratteri)');
       }
@@ -85,9 +99,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error('Password troppo corta (min 6 caratteri)');
       }
 
-      return await login(username, password);
+      if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        throw new Error('Username può contenere solo lettere, numeri e underscore');
+      }
+
+      const response = await fetch(API_ENDPOINTS.register, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(errorData || 'Errore durante la registrazione');
+      }
+
+      const data = await response.json();
+
+      // Il backend restituisce: { token: string, user: { id, username, friend_code, avatar_url, status } }
+      const user: User = {
+        id: data.user.id,
+        username: data.user.username,
+        status: data.user.status || 'online',
+        avatar: data.user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.user.username}`,
+        friendCode: data.user.friend_code,
+      };
+
+      const token = data.token;
+
+      // Salva in localStorage
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', token);
+
+      setAuthState({
+        user,
+        token,
+        isAuthenticated: true,
+      });
+
+      return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Errore registrazione');
+      const errorMessage = err instanceof Error ? err.message : 'Errore registrazione';
+      setError(errorMessage);
+      console.error('Registration error:', err);
       return false;
     } finally {
       setIsLoading(false);
@@ -98,7 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    
+
     setAuthState({
       user: null,
       token: null,

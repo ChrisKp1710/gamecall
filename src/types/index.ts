@@ -6,6 +6,7 @@ export interface User {
   avatar?: string;
   status: 'online' | 'offline' | 'in-call' | 'busy';
   lastSeen?: Date;
+  friendCode?: string;
 }
 
 export interface AuthState {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Peer, { MediaConnection, DataConnection } from 'peerjs';
+import { PEER_CONFIG } from '../config/api';
 
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'failed';
 export type CallStatus = 'idle' | 'calling' | 'ringing' | 'active' | 'ended';
@@ -49,17 +50,12 @@ export function usePeerConnection(userId: string, options: UsePeerConnectionOpti
     setState(prev => ({ ...prev, connectionStatus: 'connecting', error: null }));
 
     const peerInstance = new Peer(userId, {
-      host: 'localhost',  // Server locale per sviluppo
-      port: 9000,
-      path: '/',
-      secure: false,
-      debug: 2,  // Log dettagliati in sviluppo
-      config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' },
-        ],
-      },
+      host: PEER_CONFIG.host,
+      port: PEER_CONFIG.port,
+      path: PEER_CONFIG.path,
+      secure: PEER_CONFIG.secure,
+      debug: 2,  // Log dettagliati
+      config: PEER_CONFIG.config,
     });
 
     // Connessione aperta
