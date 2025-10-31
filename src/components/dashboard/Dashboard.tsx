@@ -25,7 +25,7 @@ export function Dashboard() {
 
   // 🔥 WebSocket per aggiornamenti real-time
   useWebSocket({
-    onFriendAdded: (friendId, friendUsername, friendCode) => {
+    onFriendAdded: (_friendId, friendUsername, _friendCode) => {
       console.log('✅ [WebSocket] Nuovo amico aggiunto:', friendUsername);
       // Ricarica lista amici
       loadFriends();

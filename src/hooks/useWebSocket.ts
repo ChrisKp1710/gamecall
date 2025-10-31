@@ -25,6 +25,12 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
 
+  // Usa ref per le callback per evitare dipendenze che cambiano
+  const optionsRef = useRef(options);
+  useEffect(() => {
+    optionsRef.current = options;
+  }, [options]);
+
   const connect = useCallback(() => {
     if (!token) return;
 
@@ -56,25 +62,25 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
           }
 
           // Callback generica
-          options.onMessage?.(message);
+          optionsRef.current.onMessage?.(message);
 
           // Callbacks specifiche per tipo di messaggio
           switch (message.type) {
             case 'friend_added':
-              options.onFriendAdded?.(
+              optionsRef.current.onFriendAdded?.(
                 message.friend_id,
                 message.friend_username,
                 message.friend_code
               );
               break;
             case 'friend_removed':
-              options.onFriendRemoved?.(message.friend_id);
+              optionsRef.current.onFriendRemoved?.(message.friend_id);
               break;
             case 'user_online':
-              options.onUserOnline?.(message.user_id);
+              optionsRef.current.onUserOnline?.(message.user_id);
               break;
             case 'user_offline':
-              options.onUserOffline?.(message.user_id);
+              optionsRef.current.onUserOffline?.(message.user_id);
               break;
           }
         } catch (err) {
@@ -106,7 +112,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     } catch (err) {
       console.error('[WebSocket] Errore connessione:', err);
     }
-  }, [token, options]);
+  }, [token]);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
