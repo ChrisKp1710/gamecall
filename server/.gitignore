@@ -1,3 +1,18 @@
-/target
-/Cargo.lock
+# Environment variables (contiene password!)
 .env
+
+# Rust build
+/target
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
