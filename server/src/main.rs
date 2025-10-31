@@ -10,6 +10,7 @@ use tracing_subscriber;
 
 mod auth;
 mod friends;
+mod messages;
 mod middleware;
 mod models;
 mod utils;
@@ -80,6 +81,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/friends/accept", post(friends::accept_request))
         .route("/friends/reject", post(friends::reject_request))
         .route("/friends/remove", post(friends::remove_friend))
+        .route("/messages", get(messages::get_messages))
+        .route("/messages/send", post(messages::send_message))
+        .route("/messages/read/:contact_id", post(messages::mark_as_read))
+        .route("/messages/unread", get(messages::get_unread_counts))
         .layer(axum_middleware::from_fn_with_state(
             state.clone(),
             middleware::auth_middleware,

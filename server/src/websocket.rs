@@ -6,12 +6,12 @@ use axum::{
     response::Response,
     Extension,
 };
+use chrono::{DateTime, Utc};
 use futures::{sink::SinkExt, stream::StreamExt};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
-use uuid::Uuid;
 
 use crate::auth::Claims;
 
@@ -36,6 +36,13 @@ pub enum WsMessage {
     #[serde(rename = "user_offline")]
     UserOffline {
         user_id: String,
+    },
+    #[serde(rename = "message_received")]
+    MessageReceived {
+        message_id: String,
+        sender_id: String,
+        content: String,
+        timestamp: DateTime<Utc>,
     },
     #[serde(rename = "ping")]
     Ping,
@@ -107,7 +114,6 @@ async fn handle_socket(socket: WebSocket, user_id: String, ws_state: WsState) {
         .await;
 
     // Task per inviare messaggi al client
-    let user_id_clone = user_id.clone();
     let mut send_task = tokio::spawn(async move {
         while let Ok(msg) = rx.recv().await {
             if sender.send(Message::Text(msg)).await.is_err() {
