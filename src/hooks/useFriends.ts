@@ -136,6 +136,17 @@ export function useFriends() {
     }
   }, [token]);
 
+  // Polling automatico ogni 30 secondi per aggiornamenti real-time
+  useEffect(() => {
+    if (!token) return;
+
+    const interval = setInterval(() => {
+      loadFriends();
+    }, 30000); // 30 secondi
+
+    return () => clearInterval(interval);
+  }, [token]);
+
   return {
     friends,
     isLoading,
