@@ -1,33 +1,90 @@
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
-   0.726209800s  INFO prepare_target{force=false package_id=gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server) target="gamecall-server"}: cargo::core::compiler::fingerprint: fingerprint dirty for gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server)/Check { test: false }/TargetInner { name: "gamecall-server", doc: true, ..: with_path("C:\\Users\\chris\\Documents\\Chat\\gamecall\\server\\src\\main.rs", Edition2021) }
-   0.726253500s  INFO prepare_target{force=false package_id=gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server) target="gamecall-server"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
-   0.753800800s  INFO prepare_target{force=false package_id=jsonwebtoken v9.3.1 target="jsonwebtoken"}: cargo::core::compiler::fingerprint: fingerprint dirty for jsonwebtoken v9.3.1/Check { test: false }/TargetInner { ..: lib_target("jsonwebtoken", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\jsonwebtoken-9.3.1\\src\\lib.rs", Edition2021) }
-   0.753845100s  INFO prepare_target{force=false package_id=jsonwebtoken v9.3.1 target="jsonwebtoken"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
-   0.755062700s  INFO prepare_target{force=false package_id=ring v0.17.14 target="ring"}: cargo::core::compiler::fingerprint: fingerprint dirty for ring v0.17.14/Check { test: false }/TargetInner { ..: lib_target("ring", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\ring-0.17.14\\src\\lib.rs", Edition2021) }
-   0.755079000s  INFO prepare_target{force=false package_id=ring v0.17.14 target="ring"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
-   0.762262100s  INFO prepare_target{force=false package_id=sqlx v0.7.4 target="sqlx"}: cargo::core::compiler::fingerprint: fingerprint dirty for sqlx v0.7.4/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("sqlx", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\sqlx-0.7.4\\src\\lib.rs", Edition2021) }
-   0.762291900s  INFO prepare_target{force=false package_id=sqlx v0.7.4 target="sqlx"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
-   0.763957500s  INFO prepare_target{force=false package_id=sqlx-core v0.7.4 target="sqlx_core"}: cargo::core::compiler::fingerprint: fingerprint dirty for sqlx-core v0.7.4/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("sqlx_core", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\sqlx-core-0.7.4\\src\\lib.rs", Edition2021) }
-   0.763974100s  INFO prepare_target{force=false package_id=sqlx-core v0.7.4 target="sqlx_core"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
-   0.772507300s  INFO prepare_target{force=false package_id=rustls v0.21.12 target="rustls"}: cargo::core::compiler::fingerprint: fingerprint dirty for rustls v0.21.12/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("rustls", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\rustls-0.21.12\\src\\lib.rs", Edition2021) }
-   0.772537200s  INFO prepare_target{force=false package_id=rustls v0.21.12 target="rustls"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
-   0.774381700s  INFO prepare_target{force=false package_id=rustls-webpki v0.101.7 target="webpki"}: cargo::core::compiler::fingerprint: fingerprint dirty for rustls-webpki v0.101.7/Check { test: false }/TargetInner { ..: lib_target("webpki", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\rustls-webpki-0.101.7\\src\\lib.rs", Edition2021) }
-   0.774402400s  INFO prepare_target{force=false package_id=rustls-webpki v0.101.7 target="webpki"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
-   0.775156200s  INFO prepare_target{force=false package_id=sct v0.7.1 target="sct"}: cargo::core::compiler::fingerprint: fingerprint dirty for sct v0.7.1/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("sct", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\sct-0.7.1\\src\\lib.rs", Edition2021) }
-   0.775170700s  INFO prepare_target{force=false package_id=sct v0.7.1 target="sct"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
-   0.816495900s  INFO prepare_target{force=false package_id=sqlx-postgres v0.7.4 target="sqlx_postgres"}: cargo::core::compiler::fingerprint: fingerprint dirty for sqlx-postgres v0.7.4/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("sqlx_postgres", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\sqlx-postgres-0.7.4\\src\\lib.rs", Edition2021) }
-   0.816523000s  INFO prepare_target{force=false package_id=sqlx-postgres v0.7.4 target="sqlx_postgres"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
-   0.823588900s  INFO prepare_target{force=false package_id=gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server) target="gamecall-server"}: cargo::core::compiler::fingerprint: fingerprint dirty for gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server)/Check { test: true }/TargetInner { name: "gamecall-server", doc: true, ..: with_path("C:\\Users\\chris\\Documents\\Chat\\gamecall\\server\\src\\main.rs", Edition2021) }
-   0.823618900s  INFO prepare_target{force=false package_id=gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server) target="gamecall-server"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
-    Checking ring v0.17.14
-    Checking rustls-webpki v0.101.7
-    Checking sct v0.7.1
-    Checking jsonwebtoken v9.3.1
-    Checking rustls v0.21.12
+   0.732348900s  INFO prepare_target{force=false package_id=gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server) target="gamecall-server"}: cargo::core::compiler::fingerprint: fingerprint dirty for gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server)/Check { test: false }/TargetInner { name: "gamecall-server", doc: true, ..: with_path("C:\\Users\\chris\\Documents\\Chat\\gamecall\\server\\src\\main.rs", Edition2021) }
+   0.732386300s  INFO prepare_target{force=false package_id=gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server) target="gamecall-server"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.734350200s  INFO prepare_target{force=false package_id=argon2 v0.5.3 target="argon2"}: cargo::core::compiler::fingerprint: fingerprint dirty for argon2 v0.5.3/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("argon2", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\argon2-0.5.3\\src\\lib.rs", Edition2021) }
+   0.734370300s  INFO prepare_target{force=false package_id=argon2 v0.5.3 target="argon2"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.735360200s  INFO prepare_target{force=false package_id=blake2 v0.10.6 target="blake2"}: cargo::core::compiler::fingerprint: fingerprint dirty for blake2 v0.10.6/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("blake2", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\blake2-0.10.6\\src\\lib.rs", Edition2018) }
+   0.735376400s  INFO prepare_target{force=false package_id=blake2 v0.10.6 target="blake2"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.736217000s  INFO prepare_target{force=false package_id=digest v0.10.7 target="digest"}: cargo::core::compiler::fingerprint: fingerprint dirty for digest v0.10.7/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("digest", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\digest-0.10.7\\src\\lib.rs", Edition2018) }
+   0.736236700s  INFO prepare_target{force=false package_id=digest v0.10.7 target="digest"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.740108000s  INFO prepare_target{force=false package_id=crypto-common v0.1.6 target="crypto_common"}: cargo::core::compiler::fingerprint: fingerprint dirty for crypto-common v0.1.6/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("crypto_common", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\crypto-common-0.1.6\\src\\lib.rs", Edition2018) }
+   0.740130000s  INFO prepare_target{force=false package_id=crypto-common v0.1.6 target="crypto_common"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.742148000s  INFO prepare_target{force=false package_id=axum v0.7.9 target="axum"}: cargo::core::compiler::fingerprint: fingerprint dirty for axum v0.7.9/Check { test: false }/TargetInner { ..: lib_target("axum", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\axum-0.7.9\\src\\lib.rs", Edition2021) }
+   0.742166100s  INFO prepare_target{force=false package_id=axum v0.7.9 target="axum"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.746267500s  INFO prepare_target{force=false package_id=axum-core v0.4.5 target="axum_core"}: cargo::core::compiler::fingerprint: fingerprint dirty for axum-core v0.4.5/Check { test: false }/TargetInner { ..: lib_target("axum_core", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\axum-core-0.4.5\\src\\lib.rs", Edition2021) }
+   0.746284700s  INFO prepare_target{force=false package_id=axum-core v0.4.5 target="axum_core"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.747272800s  INFO prepare_target{force=false package_id=futures-util v0.3.31 target="futures_util"}: cargo::core::compiler::fingerprint: fingerprint dirty for futures-util v0.3.31/Check { test: false }/TargetInner { ..: lib_target("futures_util", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\futures-util-0.3.31\\src\\lib.rs", Edition2018) }
+   0.747286100s  INFO prepare_target{force=false package_id=futures-util v0.3.31 target="futures_util"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.748083600s  INFO prepare_target{force=false package_id=futures-channel v0.3.31 target="futures_channel"}: cargo::core::compiler::fingerprint: fingerprint dirty for futures-channel v0.3.31/Check { test: false }/TargetInner { ..: lib_target("futures_channel", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\futures-channel-0.3.31\\src\\lib.rs", Edition2018) }
+   0.748097200s  INFO prepare_target{force=false package_id=futures-channel v0.3.31 target="futures_channel"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.749071200s  INFO prepare_target{force=false package_id=futures-sink v0.3.31 target="futures_sink"}: cargo::core::compiler::fingerprint: fingerprint dirty for futures-sink v0.3.31/Check { test: false }/TargetInner { ..: lib_target("futures_sink", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\futures-sink-0.3.31\\src\\lib.rs", Edition2018) }
+   0.749088800s  INFO prepare_target{force=false package_id=futures-sink v0.3.31 target="futures_sink"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.755712000s  INFO prepare_target{force=false package_id=hyper v1.7.0 target="hyper"}: cargo::core::compiler::fingerprint: fingerprint dirty for hyper v1.7.0/Check { test: false }/TargetInner { ..: lib_target("hyper", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\hyper-1.7.0\\src\\lib.rs", Edition2021) }
+   0.755735700s  INFO prepare_target{force=false package_id=hyper v1.7.0 target="hyper"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.762852700s  INFO prepare_target{force=false package_id=hyper-util v0.1.17 target="hyper_util"}: cargo::core::compiler::fingerprint: fingerprint dirty for hyper-util v0.1.17/Check { test: false }/TargetInner { ..: lib_target("hyper_util", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\hyper-util-0.1.17\\src\\lib.rs", Edition2021) }
+   0.762878100s  INFO prepare_target{force=false package_id=hyper-util v0.1.17 target="hyper_util"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.768927600s  INFO prepare_target{force=false package_id=sha1 v0.10.6 target="sha1"}: cargo::core::compiler::fingerprint: fingerprint dirty for sha1 v0.10.6/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("sha1", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\sha1-0.10.6\\src\\lib.rs", Edition2018) }
+   0.768954000s  INFO prepare_target{force=false package_id=sha1 v0.10.6 target="sha1"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.769922900s  INFO prepare_target{force=false package_id=tokio-tungstenite v0.24.0 target="tokio_tungstenite"}: cargo::core::compiler::fingerprint: fingerprint dirty for tokio-tungstenite v0.24.0/Check { test: false }/TargetInner { ..: lib_target("tokio_tungstenite", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tokio-tungstenite-0.24.0\\src\\lib.rs", Edition2018) }
+   0.769937000s  INFO prepare_target{force=false package_id=tokio-tungstenite v0.24.0 target="tokio_tungstenite"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.770865000s  INFO prepare_target{force=false package_id=tungstenite v0.24.0 target="tungstenite"}: cargo::core::compiler::fingerprint: fingerprint dirty for tungstenite v0.24.0/Check { test: false }/TargetInner { ..: lib_target("tungstenite", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tungstenite-0.24.0\\src\\lib.rs", Edition2018) }
+   0.770880000s  INFO prepare_target{force=false package_id=tungstenite v0.24.0 target="tungstenite"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.771671000s  INFO prepare_target{force=false package_id=byteorder v1.5.0 target="byteorder"}: cargo::core::compiler::fingerprint: fingerprint dirty for byteorder v1.5.0/Check { test: false }/TargetInner { benched: false, ..: lib_target("byteorder", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\byteorder-1.5.0\\src\\lib.rs", Edition2021) }
+   0.771686600s  INFO prepare_target{force=false package_id=byteorder v1.5.0 target="byteorder"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.772343800s  INFO prepare_target{force=false package_id=data-encoding v2.9.0 target="data_encoding"}: cargo::core::compiler::fingerprint: fingerprint dirty for data-encoding v2.9.0/Check { test: false }/TargetInner { ..: lib_target("data_encoding", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\data-encoding-2.9.0\\src\\lib.rs", Edition2018) }
+   0.772358300s  INFO prepare_target{force=false package_id=data-encoding v2.9.0 target="data_encoding"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.776255200s  INFO prepare_target{force=false package_id=utf-8 v0.7.6 target="utf8"}: cargo::core::compiler::fingerprint: fingerprint dirty for utf-8 v0.7.6/Check { test: false }/TargetInner { tested: false, benched: false, ..: lib_target("utf8", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\utf-8-0.7.6\\src\\lib.rs", Edition2015) }
+   0.776272500s  INFO prepare_target{force=false package_id=utf-8 v0.7.6 target="utf8"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.777013000s  INFO prepare_target{force=false package_id=tower v0.5.2 target="tower"}: cargo::core::compiler::fingerprint: fingerprint dirty for tower v0.5.2/Check { test: false }/TargetInner { ..: lib_target("tower", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tower-0.5.2\\src\\lib.rs", Edition2018) }
+   0.777030200s  INFO prepare_target{force=false package_id=tower v0.5.2 target="tower"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.779643900s  INFO prepare_target{force=false package_id=futures v0.3.31 target="futures"}: cargo::core::compiler::fingerprint: fingerprint dirty for futures v0.3.31/Check { test: false }/TargetInner { ..: lib_target("futures", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\futures-0.3.31\\src\\lib.rs", Edition2018) }
+   0.779664000s  INFO prepare_target{force=false package_id=futures v0.3.31 target="futures"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.780554800s  INFO prepare_target{force=false package_id=futures-executor v0.3.31 target="futures_executor"}: cargo::core::compiler::fingerprint: fingerprint dirty for futures-executor v0.3.31/Check { test: false }/TargetInner { ..: lib_target("futures_executor", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\futures-executor-0.3.31\\src\\lib.rs", Edition2018) }
+   0.780573400s  INFO prepare_target{force=false package_id=futures-executor v0.3.31 target="futures_executor"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.786974000s  INFO prepare_target{force=false package_id=sqlx v0.7.4 target="sqlx"}: cargo::core::compiler::fingerprint: fingerprint dirty for sqlx v0.7.4/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("sqlx", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\sqlx-0.7.4\\src\\lib.rs", Edition2021) }
+   0.786996700s  INFO prepare_target{force=false package_id=sqlx v0.7.4 target="sqlx"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.788512200s  INFO prepare_target{force=false package_id=sqlx-core v0.7.4 target="sqlx_core"}: cargo::core::compiler::fingerprint: fingerprint dirty for sqlx-core v0.7.4/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("sqlx_core", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\sqlx-core-0.7.4\\src\\lib.rs", Edition2021) }
+   0.788528800s  INFO prepare_target{force=false package_id=sqlx-core v0.7.4 target="sqlx_core"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.799273300s  INFO prepare_target{force=false package_id=sha2 v0.10.9 target="sha2"}: cargo::core::compiler::fingerprint: fingerprint dirty for sha2 v0.10.9/Check { test: false }/TargetInner { ..: lib_target("sha2", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\sha2-0.10.9\\src\\lib.rs", Edition2018) }
+   0.799301900s  INFO prepare_target{force=false package_id=sha2 v0.10.9 target="sha2"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.839209700s  INFO prepare_target{force=false package_id=sqlx-postgres v0.7.4 target="sqlx_postgres"}: cargo::core::compiler::fingerprint: fingerprint dirty for sqlx-postgres v0.7.4/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("sqlx_postgres", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\sqlx-postgres-0.7.4\\src\\lib.rs", Edition2021) }
+   0.839232600s  INFO prepare_target{force=false package_id=sqlx-postgres v0.7.4 target="sqlx_postgres"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.842041700s  INFO prepare_target{force=false package_id=hkdf v0.12.4 target="hkdf"}: cargo::core::compiler::fingerprint: fingerprint dirty for hkdf v0.12.4/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("hkdf", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\hkdf-0.12.4\\src\\lib.rs", Edition2018) }
+   0.842062600s  INFO prepare_target{force=false package_id=hkdf v0.12.4 target="hkdf"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.842787200s  INFO prepare_target{force=false package_id=hmac v0.12.1 target="hmac"}: cargo::core::compiler::fingerprint: fingerprint dirty for hmac v0.12.1/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("hmac", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\hmac-0.12.1\\src\\lib.rs", Edition2018) }
+   0.842803200s  INFO prepare_target{force=false package_id=hmac v0.12.1 target="hmac"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.843549500s  INFO prepare_target{force=false package_id=md-5 v0.10.6 target="md5"}: cargo::core::compiler::fingerprint: fingerprint dirty for md-5 v0.10.6/Check { test: false }/TargetInner { ..: lib_target("md5", ["lib"], "C:\\Users\\chris\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\md-5-0.10.6\\src\\lib.rs", Edition2018) }
+   0.843567700s  INFO prepare_target{force=false package_id=md-5 v0.10.6 target="md5"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+   0.848738600s  INFO prepare_target{force=false package_id=gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server) target="gamecall-server"}: cargo::core::compiler::fingerprint: fingerprint dirty for gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server)/Check { test: true }/TargetInner { name: "gamecall-server", doc: true, ..: with_path("C:\\Users\\chris\\Documents\\Chat\\gamecall\\server\\src\\main.rs", Edition2021) }
+   0.848763800s  INFO prepare_target{force=false package_id=gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server) target="gamecall-server"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(Stale)
+    Checking futures-sink v0.3.31
+    Checking crypto-common v0.1.6
+    Checking byteorder v1.5.0
+    Checking data-encoding v2.9.0
+    Checking utf-8 v0.7.6
+    Checking futures-channel v0.3.31
+    Checking digest v0.10.7
+    Checking futures-util v0.3.31
+    Checking hyper v1.7.0
+    Checking sha1 v0.10.6
+    Checking hmac v0.12.1
+    Checking sha2 v0.10.9
+    Checking md-5 v0.10.6
+    Checking blake2 v0.10.6
+    Checking hkdf v0.12.4
+    Checking tungstenite v0.24.0
+    Checking argon2 v0.5.3
+    Checking hyper-util v0.1.17
     Checking sqlx-core v0.7.4
+    Checking tower v0.5.2
+    Checking futures-executor v0.3.31
+    Checking axum-core v0.4.5
+    Checking tokio-tungstenite v0.24.0
+    Checking futures v0.3.31
+    Checking axum v0.7.9
     Checking sqlx-postgres v0.7.4
     Checking sqlx v0.7.4
     Checking gamecall-server v0.1.0 (C:\Users\chris\Documents\Chat\gamecall\server)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.34s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 11.82s
