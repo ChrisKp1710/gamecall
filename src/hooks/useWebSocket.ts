@@ -36,10 +36,8 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const connect = useCallback(() => {
     if (!token) return;
 
-    // Determina URL WebSocket in base all'ambiente
-    const baseUrl = import.meta.env.DEV
-      ? 'ws://localhost:3000/ws'
-      : 'wss://gamecall-api.fly.dev/ws';
+    // Usa sempre backend produzione (su Fly.io) sia in dev che in prod
+    const baseUrl = 'wss://gamecall-api.fly.dev/ws';
 
     // Aggiungi token come query parameter (non supportato nei WebSocket header)
     const wsUrl = `${baseUrl}?token=${token}`;

@@ -36,7 +36,10 @@
       "Bash(git reset:*)",
       "Read(//c/Users/chris/Pictures/Screenshots/**)",
       "Bash(npm run build)",
-      "Bash(cargo build:*)"
+      "Bash(cargo build:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []
