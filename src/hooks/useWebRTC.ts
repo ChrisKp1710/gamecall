@@ -52,10 +52,25 @@ export function useWebRTC({ contactId, onMessageReceived, sendSignal }: UseWebRT
         const rawMessage = JSON.parse(event.data);
         console.log('📩 [WebRTC] Messaggio ricevuto (raw):', rawMessage);
 
-        // Converti timestamp da stringa a Date object
+        // Converti timestamp in modo robusto
+        let timestamp: Date;
+        try {
+          // Prova a convertire il timestamp
+          timestamp = new Date(rawMessage.timestamp);
+
+          // Verifica che sia una data valida
+          if (isNaN(timestamp.getTime())) {
+            console.warn('⚠️ [WebRTC] Timestamp invalido, uso data corrente');
+            timestamp = new Date();
+          }
+        } catch (err) {
+          console.error('❌ [WebRTC] Errore conversione timestamp:', err);
+          timestamp = new Date();
+        }
+
         const message: Message = {
           ...rawMessage,
-          timestamp: new Date(rawMessage.timestamp),
+          timestamp,
           isMe: false,
         };
 

@@ -200,7 +200,9 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
               >
                 <p className="text-sm">{msg.content}</p>
                 <span className="text-xs opacity-70 mt-1 block">
-                  {msg.timestamp.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                  {msg.timestamp instanceof Date && !isNaN(msg.timestamp.getTime())
+                    ? msg.timestamp.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+                    : 'ora'}
                 </span>
               </div>
             </div>
