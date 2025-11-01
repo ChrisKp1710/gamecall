@@ -49,12 +49,18 @@ export function useWebRTC({ contactId, onMessageReceived, sendSignal }: UseWebRT
 
     channel.onmessage = (event) => {
       try {
-        const message: Message = JSON.parse(event.data);
-        console.log('📩 [WebRTC] Messaggio ricevuto:', message);
-        onMessageReceived?.({
-          ...message,
+        const rawMessage = JSON.parse(event.data);
+        console.log('📩 [WebRTC] Messaggio ricevuto (raw):', rawMessage);
+
+        // Converti timestamp da stringa a Date object
+        const message: Message = {
+          ...rawMessage,
+          timestamp: new Date(rawMessage.timestamp),
           isMe: false,
-        });
+        };
+
+        console.log('📩 [WebRTC] Messaggio elaborato:', message);
+        onMessageReceived?.(message);
       } catch (error) {
         console.error('❌ [WebRTC] Errore parsing messaggio:', error);
       }
