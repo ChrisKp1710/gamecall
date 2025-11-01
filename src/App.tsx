@@ -1,6 +1,7 @@
 import { useAuth } from './contexts/AuthContext';
 import { Login } from './components/auth/Login';
 import { NewDashboard } from './components/dashboard/NewDashboard';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { useEffect } from 'react';
 
 function App() {
@@ -29,9 +30,11 @@ function App() {
 
   // Router semplice: mostra Login o Dashboard in base allo stato di autenticazione
   return (
-    <div className="animate-fade-in">
-      {isAuthenticated ? <NewDashboard /> : <Login />}
-    </div>
+    <ErrorBoundary>
+      <div className="animate-fade-in">
+        {isAuthenticated ? <NewDashboard /> : <Login />}
+      </div>
+    </ErrorBoundary>
   );
 }
 
