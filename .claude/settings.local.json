@@ -39,7 +39,8 @@
       "Bash(cargo build:*)",
       "Bash(netstat:*)",
       "Bash(findstr:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

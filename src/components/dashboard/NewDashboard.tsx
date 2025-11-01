@@ -7,12 +7,14 @@ import { Contact } from '../../types';
 import { Sidebar } from './Sidebar';
 import { ChatArea } from './ChatArea';
 import { ProfilePanel } from './ProfilePanel';
+import { NotesPanel } from './NotesPanel';
 
 export function NewDashboard() {
   const { user, logout } = useAuth();
   const { friends, loadFriends, removeFriend } = useFriends();
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [showProfile, setShowProfile] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
 
   // Ref per webrtc (per evitare dipendenze circolari)
   const webrtcRef = useRef<ReturnType<typeof useWebRTC> | null>(null);
@@ -49,6 +51,7 @@ export function NewDashboard() {
   const handleSelectContact = useCallback((contact: Contact) => {
     setSelectedContact(contact);
     setShowProfile(false);
+    setShowNotes(false);
   }, []);
 
   const handleRemoveFriend = useCallback(async (friendId: string) => {
@@ -66,17 +69,30 @@ export function NewDashboard() {
         friends={friends}
         selectedContact={selectedContact}
         onSelectContact={handleSelectContact}
-        onShowProfile={() => setShowProfile(true)}
+        onShowProfile={() => {
+          setShowProfile(true);
+          setShowNotes(false);
+          setSelectedContact(null);
+        }}
+        onShowNotes={() => {
+          setShowNotes(true);
+          setShowProfile(false);
+          setSelectedContact(null);
+        }}
         onLogout={logout}
       />
 
-      {/* Area centrale - Chat */}
-      <ChatArea
-        selectedContact={selectedContact}
-        onRemoveFriend={handleRemoveFriend}
-        sendWsMessage={sendWsMessage}
-        webrtcRef={webrtcRef}
-      />
+      {/* Area centrale - Mostra Chat o Note */}
+      {showNotes ? (
+        <NotesPanel />
+      ) : (
+        <ChatArea
+          selectedContact={selectedContact}
+          onRemoveFriend={handleRemoveFriend}
+          sendWsMessage={sendWsMessage}
+          webrtcRef={webrtcRef}
+        />
+      )}
 
       {/* Panel destro - Profilo (opzionale) */}
       {showProfile && (
