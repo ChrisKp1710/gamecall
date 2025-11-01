@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFriends } from '../../hooks/useFriends';
 import { useWebSocket } from '../../hooks/useWebSocket';
+import { useWebRTC } from '../../hooks/useWebRTC';
 import { Contact } from '../../types';
 import { Sidebar } from './Sidebar';
 import { ChatArea } from './ChatArea';
@@ -13,8 +14,11 @@ export function NewDashboard() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [showProfile, setShowProfile] = useState(false);
 
-  // WebSocket per aggiornamenti real-time
-  useWebSocket({
+  // Ref per webrtc (per evitare dipendenze circolari)
+  const webrtcRef = useRef<ReturnType<typeof useWebRTC> | null>(null);
+
+  // WebSocket per aggiornamenti real-time (UNICA istanza per tutta l'app!)
+  const { sendMessage: sendWsMessage } = useWebSocket({
     onFriendAdded: (_friendId, friendUsername, _friendCode) => {
       console.log('✅ [WebSocket] Nuovo amico aggiunto:', friendUsername);
       loadFriends();
@@ -35,6 +39,11 @@ export function NewDashboard() {
       console.log('🔴 [WebSocket] Utente offline:', userId);
       loadFriends();
     },
+    onWebRTCSignal: useCallback(async (fromUserId: string, signal: any) => {
+      if (webrtcRef.current) {
+        await webrtcRef.current.handleSignal(fromUserId, signal);
+      }
+    }, []),
   });
 
   const handleSelectContact = useCallback((contact: Contact) => {
@@ -65,6 +74,8 @@ export function NewDashboard() {
       <ChatArea
         selectedContact={selectedContact}
         onRemoveFriend={handleRemoveFriend}
+        sendWsMessage={sendWsMessage}
+        webrtcRef={webrtcRef}
       />
 
       {/* Panel destro - Profilo (opzionale) */}
