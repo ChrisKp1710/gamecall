@@ -102,6 +102,7 @@ async fn handle_socket(socket: WebSocket, user_id: String, ws_state: WsState) {
     {
         let mut connections = ws_state.connections.write().await;
         connections.insert(user_id.clone(), tx.clone());
+        tracing::info!("✅ [WebSocket] Utente {} connesso (totale: {})", user_id, connections.len());
     }
 
     // Notifica che l'utente è online
@@ -110,6 +111,7 @@ async fn handle_socket(socket: WebSocket, user_id: String, ws_state: WsState) {
             user_id: user_id.clone(),
         })
         .await;
+    tracing::info!("📢 [WebSocket] Broadcast user_online per {}", user_id);
 
     // Task per inviare messaggi al client
     let mut send_task = tokio::spawn(async move {
@@ -136,6 +138,7 @@ async fn handle_socket(socket: WebSocket, user_id: String, ws_state: WsState) {
                         }
                         WsMessage::WebRTCSignal { from_user_id: _, to_user_id, signal } => {
                             // Relay WebRTC signal to destination user
+                            tracing::info!("📡 [WebSocket] Relay segnale WebRTC da {} a {}", user_id_clone2, to_user_id);
                             ws_state_clone
                                 .send_to_user(
                                     &to_user_id,
@@ -146,6 +149,7 @@ async fn handle_socket(socket: WebSocket, user_id: String, ws_state: WsState) {
                                     },
                                 )
                                 .await;
+                            tracing::info!("✅ [WebSocket] Segnale relay completato");
                         }
                         _ => {}
                     }

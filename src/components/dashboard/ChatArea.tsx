@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Contact } from '../../types';
 import { useWebRTC, Message } from '../../hooks/useWebRTC';
 import { useWebSocket } from '../../hooks/useWebSocket';
@@ -12,8 +12,17 @@ export function ChatArea({ selectedContact, onRemoveFriend }: ChatAreaProps) {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
 
+  // Ref per webrtc (per evitare dipendenze circolari)
+  const webrtcRef = useRef<ReturnType<typeof useWebRTC> | null>(null);
+
   // WebSocket per signaling
-  const { sendMessage: sendWsMessage } = useWebSocket({});
+  const { sendMessage: sendWsMessage } = useWebSocket({
+    onWebRTCSignal: useCallback(async (fromUserId: string, signal: any) => {
+      if (webrtcRef.current) {
+        await webrtcRef.current.handleSignal(fromUserId, signal);
+      }
+    }, []),
+  });
 
   // WebRTC per messaggi P2P
   const webrtc = useWebRTC({
@@ -31,12 +40,8 @@ export function ChatArea({ selectedContact, onRemoveFriend }: ChatAreaProps) {
     }, [sendWsMessage]),
   });
 
-  // Gestisci segnali WebRTC ricevuti
-  useWebSocket({
-    onWebRTCSignal: useCallback(async (fromUserId: string, signal: any) => {
-      await webrtc.handleSignal(fromUserId, signal);
-    }, [webrtc]),
-  });
+  // Salva ref per callback WebSocket
+  webrtcRef.current = webrtc;
 
   // Reset messages quando cambia contatto
   useEffect(() => {
