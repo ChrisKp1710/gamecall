@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Contact } from '../../types';
+import { useWebRTC, Message } from '../../hooks/useWebRTC';
+import { useWebSocket } from '../../hooks/useWebSocket';
 
 interface ChatAreaProps {
   selectedContact: Contact | null;
@@ -8,26 +10,68 @@ interface ChatAreaProps {
 
 export function ChatArea({ selectedContact, onRemoveFriend }: ChatAreaProps) {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Array<{ id: string; text: string; sender: 'me' | 'them'; timestamp: Date }>>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  // WebSocket per signaling
+  const { sendMessage: sendWsMessage } = useWebSocket({});
+
+  // WebRTC per messaggi P2P
+  const webrtc = useWebRTC({
+    contactId: selectedContact?.id || '',
+    onMessageReceived: useCallback((msg: Message) => {
+      setMessages(prev => [...prev, msg]);
+    }, []),
+    sendSignal: useCallback((toUserId: string, signal: any) => {
+      sendWsMessage({
+        type: 'webrtc_signal',
+        from_user_id: '', // Viene impostato dal server
+        to_user_id: toUserId,
+        signal,
+      });
+    }, [sendWsMessage]),
+  });
+
+  // Gestisci segnali WebRTC ricevuti
+  useWebSocket({
+    onWebRTCSignal: useCallback(async (fromUserId: string, signal: any) => {
+      await webrtc.handleSignal(fromUserId, signal);
+    }, [webrtc]),
+  });
 
   // Reset messages quando cambia contatto
   useEffect(() => {
     setMessages([]);
   }, [selectedContact?.id]);
 
+  // Auto-connetti quando selezionato contatto online
+  useEffect(() => {
+    if (selectedContact && selectedContact.status === 'online' && !webrtc.isConnected && !webrtc.isConnecting) {
+      console.log('📞 [Chat] Auto-connessione a', selectedContact.username);
+      webrtc.connect();
+    }
+  }, [selectedContact, webrtc]);
+
   const handleSendMessage = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim() || !selectedContact) return;
 
-    // TODO: Inviare messaggio via WebSocket al backend
-    setMessages(prev => [...prev, {
-      id: Date.now().toString(),
-      text: message.trim(),
-      sender: 'me',
-      timestamp: new Date(),
-    }]);
-    setMessage('');
-  }, [message, selectedContact]);
+    const sent = webrtc.sendMessage(message.trim());
+    if (sent) {
+      // Aggiungi messaggio locale
+      setMessages(prev => [...prev, {
+        id: crypto.randomUUID(),
+        senderId: 'me',
+        content: message.trim(),
+        timestamp: new Date(),
+        isMe: true,
+      }]);
+      setMessage('');
+    } else {
+      // TODO: Fallback a server se P2P non disponibile
+      console.warn('⚠️ [Chat] P2P non disponibile, messaggio non inviato');
+      alert('Connessione P2P non disponibile. Assicurati che entrambi siate online.');
+    }
+  }, [message, selectedContact, webrtc]);
 
   // Stato vuoto - nessun contatto selezionato
   if (!selectedContact) {
@@ -67,7 +111,20 @@ export function ChatArea({ selectedContact, onRemoveFriend }: ChatAreaProps) {
 
           {/* Nome e stato */}
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">{selectedContact.username}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-gray-900 dark:text-white">{selectedContact.username}</h3>
+              {webrtc.isConnected && (
+                <span className="flex items-center gap-1 text-xs text-success-500">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <circle cx="10" cy="10" r="4" />
+                  </svg>
+                  P2P
+                </span>
+              )}
+              {webrtc.isConnecting && (
+                <span className="text-xs text-warning-500">Connessione...</span>
+              )}
+            </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               {selectedContact.status === 'online' ? 'Online' : 'Offline'}
             </p>
@@ -76,6 +133,18 @@ export function ChatArea({ selectedContact, onRemoveFriend }: ChatAreaProps) {
 
         {/* Action buttons */}
         <div className="flex items-center gap-2">
+          {/* P2P Connect button */}
+          {!webrtc.isConnected && selectedContact.status === 'online' && (
+            <button
+              onClick={webrtc.connect}
+              disabled={webrtc.isConnecting}
+              className="px-3 py-1.5 text-xs font-medium bg-primary-500 hover:bg-primary-600 disabled:bg-gray-300 text-white rounded-lg transition-colors"
+              title="Connetti P2P"
+            >
+              {webrtc.isConnecting ? 'Connessione...' : 'Connetti'}
+            </button>
+          )}
+
           {/* Voice call */}
           <button
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -117,22 +186,24 @@ export function ChatArea({ selectedContact, onRemoveFriend }: ChatAreaProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
             <p className="text-gray-500 dark:text-gray-400">Nessun messaggio ancora</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Inizia una conversazione!</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+              {webrtc.isConnected ? 'Inizia una conversazione P2P criptata!' : 'Connetti P2P per iniziare'}
+            </p>
           </div>
         ) : (
           messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${msg.isMe ? 'justify-end' : 'justify-start'}`}
             >
               <div
                 className={`max-w-md px-4 py-2 rounded-2xl ${
-                  msg.sender === 'me'
+                  msg.isMe
                     ? 'bg-primary-500 text-white rounded-br-sm'
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-sm'
                 }`}
               >
-                <p className="text-sm">{msg.text}</p>
+                <p className="text-sm">{msg.content}</p>
                 <span className="text-xs opacity-70 mt-1 block">
                   {msg.timestamp.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
                 </span>
@@ -144,24 +215,30 @@ export function ChatArea({ selectedContact, onRemoveFriend }: ChatAreaProps) {
 
       {/* Input messaggio */}
       <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
-        <form onSubmit={handleSendMessage} className="flex gap-3">
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Scrivi un messaggio..."
-            className="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 border-0 rounded-full text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-          <button
-            type="submit"
-            disabled={!message.trim()}
-            className="px-6 py-3 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-full font-medium transition-colors disabled:cursor-not-allowed"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-          </button>
-        </form>
+        {!webrtc.isConnected ? (
+          <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+            Connetti P2P per inviare messaggi criptati
+          </div>
+        ) : (
+          <form onSubmit={handleSendMessage} className="flex gap-3">
+            <input
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Scrivi un messaggio P2P..."
+              className="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 border-0 rounded-full text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            />
+            <button
+              type="submit"
+              disabled={!message.trim()}
+              className="px-6 py-3 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-full font-medium transition-colors disabled:cursor-not-allowed"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

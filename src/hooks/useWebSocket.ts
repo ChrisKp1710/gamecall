@@ -7,6 +7,7 @@ export type WsMessage =
   | { type: 'friend_removed'; friend_id: string }
   | { type: 'user_online'; user_id: string }
   | { type: 'user_offline'; user_id: string }
+  | { type: 'webrtc_signal'; from_user_id: string; to_user_id: string; signal: any }
   | { type: 'ping' }
   | { type: 'pong' };
 
@@ -16,6 +17,7 @@ interface UseWebSocketOptions {
   onFriendRemoved?: (friendId: string) => void;
   onUserOnline?: (userId: string) => void;
   onUserOffline?: (userId: string) => void;
+  onWebRTCSignal?: (fromUserId: string, signal: any) => void;
 }
 
 export function useWebSocket(options: UseWebSocketOptions = {}) {
@@ -81,6 +83,9 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
               break;
             case 'user_offline':
               optionsRef.current.onUserOffline?.(message.user_id);
+              break;
+            case 'webrtc_signal':
+              optionsRef.current.onWebRTCSignal?.(message.from_user_id, message.signal);
               break;
           }
         } catch (err) {

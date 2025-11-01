@@ -6,7 +6,6 @@ use axum::{
     response::Response,
     Extension,
 };
-use chrono::{DateTime, Utc};
 use futures::{sink::SinkExt, stream::StreamExt};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -37,12 +36,11 @@ pub enum WsMessage {
     UserOffline {
         user_id: String,
     },
-    #[serde(rename = "message_received")]
-    MessageReceived {
-        message_id: String,
-        sender_id: String,
-        content: String,
-        timestamp: DateTime<Utc>,
+    #[serde(rename = "webrtc_signal")]
+    WebRTCSignal {
+        from_user_id: String,
+        to_user_id: String,
+        signal: serde_json::Value,
     },
     #[serde(rename = "ping")]
     Ping,
@@ -128,12 +126,25 @@ async fn handle_socket(socket: WebSocket, user_id: String, ws_state: WsState) {
     let mut recv_task = tokio::spawn(async move {
         while let Some(Ok(msg)) = receiver.next().await {
             if let Message::Text(text) = msg {
-                // Gestisci ping/pong per keepalive
+                // Gestisci ping/pong e WebRTC signaling
                 if let Ok(ws_msg) = serde_json::from_str::<WsMessage>(&text) {
                     match ws_msg {
                         WsMessage::Ping => {
                             ws_state_clone
                                 .send_to_user(&user_id_clone2, &WsMessage::Pong)
+                                .await;
+                        }
+                        WsMessage::WebRTCSignal { from_user_id: _, to_user_id, signal } => {
+                            // Relay WebRTC signal to destination user
+                            ws_state_clone
+                                .send_to_user(
+                                    &to_user_id,
+                                    &WsMessage::WebRTCSignal {
+                                        from_user_id: user_id_clone2.clone(),
+                                        to_user_id: to_user_id.clone(),
+                                        signal,
+                                    },
+                                )
                                 .await;
                         }
                         _ => {}
