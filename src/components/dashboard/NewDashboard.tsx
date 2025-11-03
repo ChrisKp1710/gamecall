@@ -81,7 +81,7 @@ export function NewDashboard() {
         setContactInChatWithMe(false);
       }
     },
-    onChatNotificationRequest: async (fromUserId, fromUsername) => {
+    onChatNotificationRequest: async (_fromUserId, fromUsername) => {
       console.log('🔔 [WebSocket] Richiesta notifica da:', fromUsername);
 
       // Mostra notifica desktop

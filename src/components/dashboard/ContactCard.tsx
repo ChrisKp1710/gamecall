@@ -35,6 +35,18 @@ export const ContactCard = memo(function ContactCard({ contact, onCall, onRemove
       text: 'text-error-600 dark:text-error-400',
       label: 'Occupato',
     },
+    in_chat: {
+      color: 'bg-primary-500',
+      ring: 'ring-primary-500/20',
+      text: 'text-primary-600 dark:text-primary-400',
+      label: 'In chat',
+    },
+    away: {
+      color: 'bg-warning-400',
+      ring: 'ring-warning-400/20',
+      text: 'text-warning-500 dark:text-warning-400',
+      label: 'Assente',
+    },
   };
 
   const status = statusConfig[contact.status];
