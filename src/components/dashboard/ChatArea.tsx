@@ -64,9 +64,12 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
     setMessages([]);
   }, [selectedContact?.id]);
 
-  // Auto-connetti quando selezionato contatto online
+  // Auto-connetti quando selezionato contatto è disponibile (online/away/in_chat)
   useEffect(() => {
-    if (selectedContact && selectedContact.status === 'online' && !webrtc.isConnected && !webrtc.isConnecting) {
+    const isAvailable = selectedContact &&
+      (selectedContact.status === 'online' || selectedContact.status === 'away' || selectedContact.status === 'in_chat');
+
+    if (isAvailable && !webrtc.isConnected && !webrtc.isConnecting) {
       console.log('📞 [Chat] Auto-connessione a', selectedContact.username);
       webrtc.connect();
     }
@@ -169,7 +172,7 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
         {/* Action buttons */}
         <div className="flex items-center gap-2">
           {/* P2P Connect button */}
-          {!webrtc.isConnected && selectedContact.status === 'online' && (
+          {!webrtc.isConnected && (selectedContact.status === 'online' || selectedContact.status === 'away' || selectedContact.status === 'in_chat') && (
             <button
               onClick={webrtc.connect}
               disabled={webrtc.isConnecting}
@@ -256,12 +259,6 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
           <div className="text-center py-3">
             <p className="text-sm text-gray-500 dark:text-gray-400">
               ❌ {selectedContact.username} non è disponibile
-            </p>
-          </div>
-        ) : selectedContact.status === 'away' ? (
-          <div className="text-center py-3">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              😴 {selectedContact.username} è assente
             </p>
           </div>
         ) : !isContactInChatWithMe && webrtc.isConnected ? (

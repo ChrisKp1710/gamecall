@@ -23,18 +23,6 @@ export const ContactCard = memo(function ContactCard({ contact, onCall, onRemove
       text: 'text-gray-500 dark:text-gray-400',
       label: 'Offline',
     },
-    'in-call': {
-      color: 'bg-warning-500',
-      ring: 'ring-warning-500/20',
-      text: 'text-warning-600 dark:text-warning-400',
-      label: 'In chiamata',
-    },
-    busy: {
-      color: 'bg-error-500',
-      ring: 'ring-error-500/20',
-      text: 'text-error-600 dark:text-error-400',
-      label: 'Occupato',
-    },
     in_chat: {
       color: 'bg-primary-500',
       ring: 'ring-primary-500/20',
@@ -95,7 +83,7 @@ export const ContactCard = memo(function ContactCard({ contact, onCall, onRemove
 
         {/* Call buttons */}
         <div className="flex gap-2">
-          {contact.status === 'online' ? (
+          {['online', 'away', 'in_chat'].includes(contact.status) ? (
             <>
               {/* Audio call */}
               <button
