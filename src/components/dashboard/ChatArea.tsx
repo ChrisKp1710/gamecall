@@ -2,18 +2,15 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Contact } from '../../types';
 import { useWebRTC, Message } from '../../hooks/useWebRTC';
 import { WsMessage } from '../../hooks/useWebSocket';
-import { useAuth } from '../../contexts/AuthContext';
 
 interface ChatAreaProps {
   selectedContact: Contact | null;
   onRemoveFriend: (friendId: string) => void;
   sendWsMessage: (message: WsMessage) => void;
   webrtcRef: React.MutableRefObject<ReturnType<typeof useWebRTC> | null>;
-  isContactInChatWithMe: boolean;
 }
 
-export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrtcRef, isContactInChatWithMe }: ChatAreaProps) {
-  const { user } = useAuth();
+export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrtcRef }: ChatAreaProps) {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const previousContactIdRef = useRef<string | null>(null);
@@ -42,7 +39,6 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
     if (selectedContact) {
       // Solo invia messaggi se l'ID del contatto è cambiato
       if (previousContactIdRef.current !== selectedContact.id) {
-        console.log('💬 [Chat] Entrato in chat con', selectedContact.username);
         previousContactIdRef.current = selectedContact.id;
 
         sendWsMessage({
@@ -53,7 +49,6 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
 
         // Notifica uscita quando il componente smonta o cambia contatto
         return () => {
-          console.log('🚪 [Chat] Uscito dalla chat con', selectedContact.username);
           sendWsMessage({
             type: 'user_left_chat',
             user_id: '',
@@ -78,7 +73,6 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
       (selectedContact.status === 'online' || selectedContact.status === 'away' || selectedContact.status === 'in_chat');
 
     if (isAvailable && !webrtc.isConnected && !webrtc.isConnecting) {
-      console.log('📞 [Chat] Auto-connessione a', selectedContact.username);
       webrtc.connect();
     }
   }, [selectedContact, webrtc]);
@@ -98,26 +92,19 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
         isMe: true,
       }]);
       setMessage('');
-    } else {
-      // TODO: Fallback a server se P2P non disponibile
-      console.warn('⚠️ [Chat] P2P non disponibile, messaggio non inviato');
-      alert('Connessione P2P non disponibile. Assicurati che entrambi siate online.');
     }
   }, [message, selectedContact, webrtc]);
 
   const handleNotifyContact = useCallback(() => {
-    if (!selectedContact || !user) return;
+    if (!selectedContact) return;
 
-    console.log('🔔 [Chat] Invio richiesta notifica a', selectedContact.username);
     sendWsMessage({
       type: 'chat_notification_request',
-      from_user_id: user.id,
-      from_username: user.username,
+      from_user_id: '',
+      from_username: '',
       to_user_id: selectedContact.id,
     });
-
-    alert(`Richiesta inviata a ${selectedContact.username}!`);
-  }, [selectedContact, user, sendWsMessage]);
+  }, [selectedContact, sendWsMessage]);
 
   // Stato vuoto - nessun contatto selezionato
   if (!selectedContact) {
@@ -275,23 +262,7 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
               ❌ {selectedContact.username} non è disponibile
             </p>
           </div>
-        ) : !isContactInChatWithMe && webrtc.isConnected ? (
-          <div className="text-center py-3">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-              🔔 {selectedContact.username} non è in chat con te
-            </p>
-            <button
-              onClick={handleNotifyContact}
-              className="px-4 py-2 bg-warning-500 hover:bg-warning-600 text-white rounded-lg font-medium transition-colors"
-            >
-              Avvisa {selectedContact.username}
-            </button>
-          </div>
-        ) : !webrtc.isConnected ? (
-          <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-            Connetti P2P per inviare messaggi criptati
-          </div>
-        ) : (
+        ) : webrtc.isConnected ? (
           <form onSubmit={handleSendMessage} className="flex gap-3">
             <input
               type="text"
@@ -310,6 +281,18 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
               </svg>
             </button>
           </form>
+        ) : (
+          <div className="text-center py-3">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+              🔔 {selectedContact.username} non è in chat con te
+            </p>
+            <button
+              onClick={handleNotifyContact}
+              className="px-6 py-2.5 bg-warning-500 hover:bg-warning-600 text-white rounded-lg font-medium transition-colors shadow-lg"
+            >
+              Avvisa {selectedContact.username}
+            </button>
+          </div>
         )}
       </div>
     </div>

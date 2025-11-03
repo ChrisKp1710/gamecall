@@ -10,6 +10,13 @@ import { Sidebar } from './Sidebar';
 import { ChatArea } from './ChatArea';
 import { ProfilePanel } from './ProfilePanel';
 import { NotesPanel } from './NotesPanel';
+import { ChatNotificationToast } from '../notifications/ChatNotificationToast';
+
+interface ChatNotification {
+  fromUserId: string;
+  fromUsername: string;
+  fromAvatar?: string;
+}
 
 export function NewDashboard() {
   const { user, logout } = useAuth();
@@ -17,7 +24,7 @@ export function NewDashboard() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [showProfile, setShowProfile] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
-  const [contactInChatWithMe, setContactInChatWithMe] = useState(false);
+  const [chatNotification, setChatNotification] = useState<ChatNotification | null>(null);
 
   // Ref per webrtc (per evitare dipendenze circolari)
   const webrtcRef = useRef<ReturnType<typeof useWebRTC> | null>(null);
@@ -31,14 +38,8 @@ export function NewDashboard() {
           const permission = await requestPermission();
           permissionGranted = permission === 'granted';
         }
-        if (permissionGranted) {
-          console.log('✅ [Notifications] Permesso concesso');
-        } else {
-          console.warn('⚠️ [Notifications] Permesso negato');
-        }
       } catch (error) {
         // Ignora errore permessi (può capitare in dev o se non configurato)
-        console.warn('⚠️ [Notifications] Errore controllo permessi:', error);
       }
     };
     checkNotificationPermission();
@@ -46,12 +47,10 @@ export function NewDashboard() {
 
   // WebSocket per aggiornamenti real-time (UNICA istanza per tutta l'app!)
   const { sendMessage: sendWsMessage } = useWebSocket({
-    onFriendAdded: (_friendId, friendUsername, _friendCode) => {
-      console.log('✅ [WebSocket] Nuovo amico aggiunto:', friendUsername);
+    onFriendAdded: () => {
       loadFriends();
     },
     onFriendRemoved: (friendId) => {
-      console.log('❌ [WebSocket] Amico rimosso:', friendId);
       loadFriends();
       // Se chat aperta con amico rimosso, chiudi chat
       if (selectedContact?.id === friendId) {
@@ -59,56 +58,47 @@ export function NewDashboard() {
       }
     },
     onUserOnline: (userId) => {
-      console.log('🟢 [WebSocket] Utente online:', userId);
       updateFriendStatus(userId, 'online');
     },
     onUserOffline: (userId) => {
-      console.log('🔴 [WebSocket] Utente offline:', userId);
       updateFriendStatus(userId, 'offline');
     },
     onUserAway: (userId) => {
-      console.log('😴 [WebSocket] Utente away:', userId);
       updateFriendStatus(userId, 'away');
     },
-    onUserEnteredChat: (userId, chatWithUserId) => {
-      console.log('💬 [WebSocket] Utente entrato in chat:', userId, 'chatWithUserId:', chatWithUserId);
+    onUserEnteredChat: (userId) => {
       updateFriendStatus(userId, 'in_chat');
-      // Se l'utente è entrato in chat con me
-      console.log('🔍 [Debug] Controllo isContactInChatWithMe:', {
-        userId,
-        chatWithUserId,
-        myId: user?.id,
-        selectedContactId: selectedContact?.id,
-        condition: user && chatWithUserId === user.id && selectedContact?.id === userId
-      });
-      if (user && chatWithUserId === user.id && selectedContact?.id === userId) {
-        console.log('✅ [Dashboard] Impostato isContactInChatWithMe = true');
-        setContactInChatWithMe(true);
-      }
     },
-    onUserLeftChat: (userId, chatWithUserId) => {
-      console.log('🚪 [WebSocket] Utente uscito dalla chat:', userId);
+    onUserLeftChat: (userId) => {
       updateFriendStatus(userId, 'online');
-      // Se l'utente è uscito dalla chat con me
-      if (user && chatWithUserId === user.id && selectedContact?.id === userId) {
-        setContactInChatWithMe(false);
-      }
     },
-    onChatNotificationRequest: async (_fromUserId, fromUsername) => {
-      console.log('🔔 [WebSocket] Richiesta notifica da:', fromUsername);
+    onChatNotificationRequest: async (fromUserId, fromUsername) => {
+      // Trova avatar dell'amico
+      const friend = friends.find(f => f.id === fromUserId);
 
-      // Mostra notifica desktop
+      // Controlla se sei già in chat con questa persona
+      const isAlreadyInChatWithSender = selectedContact?.id === fromUserId;
+
+      if (isAlreadyInChatWithSender) {
+        return; // Non mostrare nulla se sei già in chat con loro
+      }
+
+      // Mostra notifica desktop (Tauri si occupa di mostrarla solo se app in background)
       try {
         await sendNotification({
           title: 'GameCall',
-          body: `${fromUsername} vuole scriverti!`,
+          body: `${fromUsername} vuole chattare con te!`,
         });
       } catch (error) {
-        console.error('❌ [Notifications] Errore invio notifica:', error);
+        // Ignora errori notifica
       }
 
-      // Mostra anche alert in-app (fallback)
-      alert(`${fromUsername} vuole scriverti! Apri la chat per rispondere.`);
+      // Mostra toast in-app
+      setChatNotification({
+        fromUserId,
+        fromUsername,
+        fromAvatar: friend?.avatar,
+      });
     },
     onWebRTCSignal: useCallback(async (fromUserId: string, signal: any) => {
       if (webrtcRef.current) {
@@ -125,7 +115,6 @@ export function NewDashboard() {
     if (selectedContact) {
       const updatedContact = friends.find(f => f.id === selectedContact.id);
       if (updatedContact && updatedContact.status !== selectedContact.status) {
-        console.log(`🔄 [Dashboard] Aggiornamento stato ${selectedContact.username}: ${selectedContact.status} → ${updatedContact.status}`);
         setSelectedContact(updatedContact);
       }
     }
@@ -135,7 +124,6 @@ export function NewDashboard() {
     setSelectedContact(contact);
     setShowProfile(false);
     setShowNotes(false);
-    setContactInChatWithMe(false); // Reset quando cambi contatto
   }, []);
 
   const handleRemoveFriend = useCallback(async (friendId: string) => {
@@ -175,7 +163,6 @@ export function NewDashboard() {
           onRemoveFriend={handleRemoveFriend}
           sendWsMessage={sendWsMessage}
           webrtcRef={webrtcRef}
-          isContactInChatWithMe={contactInChatWithMe}
         />
       )}
 
@@ -184,6 +171,22 @@ export function NewDashboard() {
         <ProfilePanel
           user={user}
           onClose={() => setShowProfile(false)}
+        />
+      )}
+
+      {/* Toast notifica chat */}
+      {chatNotification && (
+        <ChatNotificationToast
+          fromUsername={chatNotification.fromUsername}
+          fromAvatar={chatNotification.fromAvatar}
+          onOpenChat={() => {
+            // Trova il contatto e aprilo
+            const friend = friends.find(f => f.id === chatNotification.fromUserId);
+            if (friend) {
+              handleSelectContact(friend);
+            }
+          }}
+          onClose={() => setChatNotification(null)}
         />
       )}
     </div>
