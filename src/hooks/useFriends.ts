@@ -9,6 +9,15 @@ export function useFriends() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Aggiorna lo stato di un amico specifico (chiamato da WebSocket)
+  const updateFriendStatus = (friendId: string, newStatus: Contact['status']) => {
+    setFriends(prev => prev.map(friend =>
+      friend.id === friendId
+        ? { ...friend, status: newStatus }
+        : friend
+    ));
+  };
+
   // Carica lista amici dall'API
   const loadFriends = async () => {
     if (!token) {
@@ -145,5 +154,6 @@ export function useFriends() {
     loadFriends,
     addFriend,
     removeFriend,
+    updateFriendStatus,
   };
 }

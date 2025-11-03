@@ -13,7 +13,7 @@ import { NotesPanel } from './NotesPanel';
 
 export function NewDashboard() {
   const { user, logout } = useAuth();
-  const { friends, loadFriends, removeFriend } = useFriends();
+  const { friends, loadFriends, removeFriend, updateFriendStatus } = useFriends();
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [showProfile, setShowProfile] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
@@ -25,15 +25,20 @@ export function NewDashboard() {
   // Richiedi permesso notifiche all'avvio
   useEffect(() => {
     const checkNotificationPermission = async () => {
-      let permissionGranted = await isPermissionGranted();
-      if (!permissionGranted) {
-        const permission = await requestPermission();
-        permissionGranted = permission === 'granted';
-      }
-      if (permissionGranted) {
-        console.log('✅ [Notifications] Permesso concesso');
-      } else {
-        console.warn('⚠️ [Notifications] Permesso negato');
+      try {
+        let permissionGranted = await isPermissionGranted();
+        if (!permissionGranted) {
+          const permission = await requestPermission();
+          permissionGranted = permission === 'granted';
+        }
+        if (permissionGranted) {
+          console.log('✅ [Notifications] Permesso concesso');
+        } else {
+          console.warn('⚠️ [Notifications] Permesso negato');
+        }
+      } catch (error) {
+        // Ignora errore permessi (può capitare in dev o se non configurato)
+        console.warn('⚠️ [Notifications] Errore controllo permessi:', error);
       }
     };
     checkNotificationPermission();
@@ -55,19 +60,19 @@ export function NewDashboard() {
     },
     onUserOnline: (userId) => {
       console.log('🟢 [WebSocket] Utente online:', userId);
-      loadFriends();
+      updateFriendStatus(userId, 'online');
     },
     onUserOffline: (userId) => {
       console.log('🔴 [WebSocket] Utente offline:', userId);
-      loadFriends();
+      updateFriendStatus(userId, 'offline');
     },
     onUserAway: (userId) => {
       console.log('😴 [WebSocket] Utente away:', userId);
-      loadFriends();
+      updateFriendStatus(userId, 'away');
     },
     onUserEnteredChat: (userId, chatWithUserId) => {
       console.log('💬 [WebSocket] Utente entrato in chat:', userId);
-      loadFriends();
+      updateFriendStatus(userId, 'in_chat');
       // Se l'utente è entrato in chat con me
       if (user && chatWithUserId === user.id && selectedContact?.id === userId) {
         setContactInChatWithMe(true);
@@ -75,7 +80,7 @@ export function NewDashboard() {
     },
     onUserLeftChat: (userId, chatWithUserId) => {
       console.log('🚪 [WebSocket] Utente uscito dalla chat:', userId);
-      loadFriends();
+      updateFriendStatus(userId, 'online');
       // Se l'utente è uscito dalla chat con me
       if (user && chatWithUserId === user.id && selectedContact?.id === userId) {
         setContactInChatWithMe(false);

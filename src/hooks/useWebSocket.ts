@@ -34,6 +34,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
+  const messageQueue = useRef<WsMessage[]>([]);
 
   // Usa ref per le callback per evitare dipendenze che cambiano
   const optionsRef = useRef(options);
@@ -56,6 +57,15 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       ws.onopen = () => {
         console.log('[WebSocket] Connesso');
         reconnectAttempts.current = 0;
+
+        // Invia messaggi in coda
+        while (messageQueue.current.length > 0) {
+          const msg = messageQueue.current.shift();
+          if (msg) {
+            ws.send(JSON.stringify(msg));
+            console.log('[WebSocket] Messaggio dalla coda inviato:', msg.type);
+          }
+        }
       };
 
       ws.onmessage = (event) => {
@@ -153,7 +163,9 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(message));
     } else {
-      console.warn('[WebSocket] Non connesso, impossibile inviare messaggio');
+      // Accoda messaggio per invio futuro
+      console.warn('[WebSocket] Non connesso, messaggio accodato:', message.type);
+      messageQueue.current.push(message);
     }
   }, []);
 

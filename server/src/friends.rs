@@ -38,7 +38,7 @@ pub async fn list_friends(
         .map_err(|_| (StatusCode::BAD_REQUEST, "Invalid user ID".to_string()))?;
 
     // Query per ottenere tutti gli amici accettati
-    let friends = sqlx::query_as::<_, (Uuid, String, String, Option<String>, String, String)>(
+    let friends_data = sqlx::query_as::<_, (Uuid, String, String, Option<String>, String, String)>(
         r#"
         SELECT u.id, u.username, u.friend_code, u.avatar_url, u.status, f.status as friendship_status
         FROM friendships f
@@ -49,17 +49,30 @@ pub async fn list_friends(
     .bind(user_id)
     .fetch_all(&state.db)
     .await
-    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?
-    .into_iter()
-    .map(|(id, username, friend_code, avatar_url, status, friendship_status)| FriendResponse {
-        id: id.to_string(),
-        username,
-        friend_code,
-        avatar_url,
-        status,
-        friendship_status,
-    })
-    .collect();
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    // Ottieni stati real-time dal WebSocket
+    let user_states = state.ws_state.user_states.read().await;
+
+    let friends: Vec<FriendResponse> = friends_data
+        .into_iter()
+        .map(|(id, username, friend_code, avatar_url, _db_status, friendship_status)| {
+            // Usa lo stato dal WebSocket se l'utente è connesso, altrimenti "offline"
+            let real_status = user_states
+                .get(&id.to_string())
+                .map(|(status, _)| status.clone())
+                .unwrap_or_else(|| "offline".to_string());
+
+            FriendResponse {
+                id: id.to_string(),
+                username,
+                friend_code,
+                avatar_url,
+                status: real_status,
+                friendship_status,
+            }
+        })
+        .collect();
 
     Ok(Json(friends))
 }
