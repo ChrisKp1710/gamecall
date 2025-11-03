@@ -11,51 +11,69 @@
 
 **Versione**: 0.1.0 - Beta Funzionante ✅
 
-### ✅ Funzionalità Implementate
+### ✅ Funzionalità Implementate e Testate
 
-- ✅ **Autenticazione completa** - Login, registrazione, JWT
-- ✅ **Sistema amici** - Aggiungi amici tramite Friend Code unico
-- ✅ **Eliminazione amici bidirezionale** - Rimuovi amici (entrambi si vedono aggiornati)
-- ✅ **Video chiamate P2P** - WebRTC con PeerJS per chiamate dirette
-- ✅ **UI Responsive** - Funziona su mobile, tablet e desktop
-- ✅ **Database PostgreSQL** - Persistenza dati online (Fly.io)
-- ✅ **Build automatici** - GitHub Actions per Windows, macOS, Linux
+- ✅ **Autenticazione completa** - Login, registrazione, JWT (validità 30 giorni), password Argon2
+- ✅ **Sistema amici** - Aggiungi amici tramite Friend Code unico (formato `GC-XXXX-YYYY`)
+- ✅ **Eliminazione amici bidirezionale** - Rimuovi amici (entrambi si vedono aggiornati in real-time)
+- ✅ **WebSocket real-time** - Aggiornamenti stati utenti (online, offline, away, in_chat) in tempo reale
+- ✅ **Chat P2P criptata** - Messaggi peer-to-peer via WebRTC Data Channel (end-to-end)
+- ✅ **Notifiche** - Toast in-app + notifiche desktop Tauri quando app in background
+- ✅ **UI Responsive** - Design professionale con TailwindCSS, funziona su mobile, tablet e desktop
+- ✅ **Database PostgreSQL** - Persistenza dati online (Fly.io) con schema ottimizzato
+- ✅ **Build automatici** - GitHub Actions per Windows, macOS, Linux (.msi, .dmg, .AppImage, .deb)
+- ✅ **Gestione lifecycle app** - Stato "away" automatico quando app perde focus
 
-### 🚧 In Sviluppo
+### 🚧 In Sviluppo (UI Pronta, Logica da Completare)
 
-- 🔄 **Status online real-time** - Attualmente statico, serve WebSocket
-- 🔄 **Chiamate vocali** - Audio-only (già presente video)
-- 🔄 **Screen sharing** - Condivisione schermo durante chiamate
-- 🔄 **Picture-in-Picture** - Overlay video durante il gaming
-- 🔄 **Gestione richieste amicizia** - Sistema richieste pending/accepted
+- 🔄 **Video chiamate** - Hooks implementati (`useMediaStream`, `usePeerConnection`), manca integrazione finale
+- 🔄 **Chiamate vocali** - Come sopra (stessi hooks)
+- 🔄 **Screen sharing** - Da implementare
+- 🔄 **Picture-in-Picture** - Overlay video durante il gaming (da implementare)
 
-## ✨ Features
+### 📋 TODO Futuri
 
-- 🎥 **Video chiamate P2P** - Connessione diretta peer-to-peer senza intermediari
-- 🔐 **Sistema amici** - Aggiungi e rimuovi amici tramite Friend Code
-- 👥 **Gestione contatti** - Lista amici con status (online/offline)
-- 🗑️ **Eliminazione bidirezionale** - Rimuovi amici con conferma (anche l'amico ti vede rimosso)
-- 📱 **UI Responsive** - Design adattivo per ogni dimensione schermo
-- 🌍 **Cross-platform** - Windows, macOS, Linux
-- ☁️ **Backend online** - API REST su Fly.io con database PostgreSQL
+- ⏳ **Persistenza messaggi** - Salvare cronologia chat su DB o localStorage
+- ⏳ **Auto-updater** - Aggiornamenti automatici app desktop
+- ⏳ **Gestione richieste amicizia** - Sistema pending/accepted (attualmente auto-accepted)
+
+## ✨ Features Principali
+
+- 💬 **Chat P2P Criptata** - Messaggi end-to-end via WebRTC Data Channel (nessun server intermedio)
+- 📡 **Real-time WebSocket** - Stati utenti aggiornati in tempo reale (online, offline, away, in_chat)
+- 🔐 **Sistema Amici Sicuro** - Aggiungi e rimuovi amici tramite Friend Code univoco
+- 👥 **Gestione Contatti Avanzata** - Lista amici con stati dinamici e notifiche
+- 🗑️ **Eliminazione Bidirezionale** - Rimuovi amici con conferma (entrambi si aggiornano)
+- 🔔 **Notifiche Intelligenti** - Toast in-app quando sei attivo, notifiche desktop quando app in background
+- 📱 **UI Professionale** - Design moderno e responsive con TailwindCSS
+- 🌍 **Cross-platform Desktop** - Windows (.msi, .exe), macOS (.dmg), Linux (.AppImage, .deb)
+- ☁️ **Backend Scalabile** - API REST Rust + PostgreSQL su Fly.io, WebSocket per real-time
+- 🔒 **Sicurezza** - JWT (30 giorni), password Argon2, HTTPS/WSS
 
 ## 🏗️ Architettura
 
 ```
-☁️ Backend Online (Fly.io)
+☁️ Backend Online (Fly.io - Amsterdam)
 ├── API REST (Rust + Axum) - https://gamecall-api.fly.dev
-│   ├── Autenticazione (JWT + Argon2)
+│   ├── Autenticazione (JWT 30 giorni + Argon2)
 │   ├── Gestione amici (CRUD bidirezionale)
-│   └── Database PostgreSQL
+│   ├── WebSocket Server (real-time stati utenti + relay WebRTC signals)
+│   └── Database PostgreSQL (users, friendships, call_history)
 ├── PeerJS Signaling Server - https://gamecall-peerjs.fly.dev
-└── GitHub Actions (Build automatici per 3 piattaforme)
+│   └── Signaling per WebRTC (offer/answer/ICE candidates)
+└── GitHub Actions (Build automatici Windows, macOS, Linux)
 
-💻 Desktop App (Tauri)
-└── React + TypeScript Frontend
-    ├── WebRTC (video calls)
-    ├── TailwindCSS (UI responsive)
-    └── Zustand (state management)
+💻 Desktop App (Tauri 2.0)
+└── React 18 + TypeScript Frontend
+    ├── WebSocket (aggiornamenti real-time stati)
+    ├── WebRTC Data Channel (chat P2P criptata)
+    ├── WebRTC Media (video/audio - in sviluppo)
+    ├── TailwindCSS (design system professionale)
+    ├── Zustand (state management chiamate)
+    └── Hooks personalizzati (useWebSocket, useWebRTC, useFriends, useMediaStream, usePeerConnection)
 ```
+
+> **Nota**: Per dettagli tecnici completi vedi [ARCHITETTURA.md](./ARCHITETTURA.md)
 
 ## 🚀 Quick Start
 

@@ -40,7 +40,8 @@
       "Bash(netstat:*)",
       "Bash(findstr:*)",
       "Bash(taskkill:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Read(//c/Users/chris/Documents/chat/gamecall/**)"
     ],
     "deny": [],
     "ask": []

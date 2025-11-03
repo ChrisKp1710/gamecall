@@ -71,8 +71,8 @@ pub async fn register(
     }
 
     // Validazione password
-    if payload.password.len() < 6 {
-        return Err((StatusCode::BAD_REQUEST, "Password must be at least 6 characters".to_string()));
+    if payload.password.len() < 8 {
+        return Err((StatusCode::BAD_REQUEST, "Password must be at least 8 characters".to_string()));
     }
 
     // Controlla se username esiste già
@@ -203,7 +203,7 @@ pub async fn me(
 
 fn create_jwt(secret: &str, user: &User) -> Result<String, (StatusCode, String)> {
     let expiration = Utc::now()
-        .checked_add_signed(Duration::days(7))
+        .checked_add_signed(Duration::days(30))
         .expect("valid timestamp")
         .timestamp();
 
