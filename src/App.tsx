@@ -2,10 +2,22 @@ import { useAuth } from './contexts/AuthContext';
 import { Login } from './components/auth/Login';
 import { NewDashboard } from './components/dashboard/NewDashboard';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 
 function App() {
   const { isAuthenticated, isLoading } = useAuth();
+  const [windowLabel, setWindowLabel] = useState<string>('');
+
+  // Ottieni label finestra corrente
+  useEffect(() => {
+    const getLabel = async () => {
+      const window = getCurrentWindow();
+      const label = window.label;
+      setWindowLabel(label);
+    };
+    getLabel();
+  }, []);
 
   // Previeni flash di contenuto durante caricamento
   useEffect(() => {
@@ -28,11 +40,11 @@ function App() {
     );
   }
 
-  // Router semplice: mostra Login o Dashboard in base allo stato di autenticazione
+  // Router: mostra Login nella finestra login, Dashboard nella finestra main
   return (
     <ErrorBoundary>
       <div className="animate-fade-in">
-        {isAuthenticated ? <NewDashboard /> : <Login />}
+        {windowLabel === 'login' ? <Login /> : <NewDashboard />}
       </div>
     </ErrorBoundary>
   );

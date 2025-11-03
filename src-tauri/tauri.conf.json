@@ -12,9 +12,13 @@
   "app": {
     "windows": [
       {
-        "title": "gamecall",
-        "width": 800,
-        "height": 600
+        "label": "login",
+        "title": "GameCall - Login",
+        "width": 420,
+        "height": 580,
+        "decorations": false,
+        "resizable": false,
+        "center": true
       }
     ],
     "security": {
@@ -25,6 +29,12 @@
           "windows": ["*"],
           "permissions": [
             "core:default",
+            "core:window:allow-create",
+            "core:window:allow-close",
+            "core:window:allow-show",
+            "core:window:allow-hide",
+            "core:window:allow-set-focus",
+            "core:webview:allow-create-webview-window",
             "notification:default"
           ]
         }
