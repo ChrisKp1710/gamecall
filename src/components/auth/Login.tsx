@@ -64,7 +64,7 @@ export function Login() {
       className="h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#1a1b1e] dark:to-[#2b2d31] overflow-hidden px-8"
     >
       {/* Logo e branding */}
-      <div className="mb-8 text-center" onMouseDown={(e) => e.stopPropagation()}>
+      <div className="mb-8 text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 dark:bg-blue-500 rounded-2xl mb-4 shadow-lg">
           <svg className="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -79,7 +79,7 @@ export function Login() {
       </div>
 
       {/* Form */}
-      <div className="w-full max-w-sm" onMouseDown={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-sm">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Username */}
           <div>
@@ -90,6 +90,7 @@ export function Login() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              onMouseDown={(e) => e.stopPropagation()}
               className="w-full bg-white dark:bg-[#1e1f22] text-gray-900 dark:text-white text-sm border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-400 dark:placeholder-gray-500"
               placeholder="Il tuo username"
               required
@@ -107,6 +108,7 @@ export function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onMouseDown={(e) => e.stopPropagation()}
               className="w-full bg-white dark:bg-[#1e1f22] text-gray-900 dark:text-white text-sm border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-400 dark:placeholder-gray-500"
               placeholder="La tua password"
               required
@@ -135,6 +137,7 @@ export function Login() {
           <button
             type="submit"
             disabled={isLoading}
+            onMouseDown={(e) => e.stopPropagation()}
             className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white text-sm font-semibold rounded-xl px-4 py-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 mt-6"
           >
             {isLoading ? (
@@ -160,6 +163,7 @@ export function Login() {
               setIsLogin(!isLogin);
               setError('');
             }}
+            onMouseDown={(e) => e.stopPropagation()}
             className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
             disabled={isLoading}
           >
