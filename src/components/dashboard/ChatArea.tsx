@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Contact } from '../../types';
 import { useWebRTC, Message } from '../../hooks/useWebRTC';
 import { WsMessage } from '../../hooks/useWebSocket';
@@ -16,6 +16,7 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
   const { user } = useAuth();
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
+  const previousContactIdRef = useRef<string | null>(null);
 
   // WebRTC per messaggi P2P
   const webrtc = useWebRTC({
@@ -39,25 +40,32 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
   // Gestione entrata/uscita dalla chat
   useEffect(() => {
     if (selectedContact) {
-      // Notifica entrata in chat
-      console.log('💬 [Chat] Entrato in chat con', selectedContact.username);
-      sendWsMessage({
-        type: 'user_entered_chat',
-        user_id: '',
-        chat_with_user_id: selectedContact.id,
-      });
+      // Solo invia messaggi se l'ID del contatto è cambiato
+      if (previousContactIdRef.current !== selectedContact.id) {
+        console.log('💬 [Chat] Entrato in chat con', selectedContact.username);
+        previousContactIdRef.current = selectedContact.id;
 
-      // Notifica uscita quando il componente smonta o cambia contatto
-      return () => {
-        console.log('🚪 [Chat] Uscito dalla chat con', selectedContact.username);
         sendWsMessage({
-          type: 'user_left_chat',
+          type: 'user_entered_chat',
           user_id: '',
           chat_with_user_id: selectedContact.id,
         });
-      };
+
+        // Notifica uscita quando il componente smonta o cambia contatto
+        return () => {
+          console.log('🚪 [Chat] Uscito dalla chat con', selectedContact.username);
+          sendWsMessage({
+            type: 'user_left_chat',
+            user_id: '',
+            chat_with_user_id: selectedContact.id,
+          });
+          previousContactIdRef.current = null;
+        };
+      }
+    } else {
+      previousContactIdRef.current = null;
     }
-  }, [selectedContact, sendWsMessage]);
+  }, [selectedContact?.id, sendWsMessage]);
 
   // Reset messages quando cambia contatto
   useEffect(() => {

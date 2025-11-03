@@ -132,7 +132,10 @@ export const Sidebar = memo(function Sidebar({
                   </div>
                   {/* Status indicator */}
                   <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-gray-800 ${
-                    friend.status === 'online' ? 'bg-success-500' : 'bg-gray-400'
+                    friend.status === 'online' ? 'bg-success-500' :
+                    friend.status === 'in_chat' ? 'bg-primary-500' :
+                    friend.status === 'away' ? 'bg-warning-400' :
+                    'bg-gray-400'
                   }`} />
                 </div>
 
@@ -143,7 +146,10 @@ export const Sidebar = memo(function Sidebar({
                     <span className="text-xs text-gray-400 dark:text-gray-500">ora</span>
                   </div>
                   <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                    {friend.status === 'online' ? 'Online' : 'Offline'}
+                    {friend.status === 'online' && 'Online'}
+                    {friend.status === 'offline' && 'Offline'}
+                    {friend.status === 'away' && 'Assente'}
+                    {friend.status === 'in_chat' && 'In chat'}
                   </p>
                 </div>
               </button>
