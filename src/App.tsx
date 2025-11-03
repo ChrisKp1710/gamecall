@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
 function App() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isLoading } = useAuth();
   const [windowLabel, setWindowLabel] = useState<string>('');
 
   // Ottieni label finestra corrente
@@ -41,6 +41,7 @@ function App() {
   }
 
   // Router: mostra Login nella finestra login, Dashboard nella finestra main
+  // Usa windowLabel per sapere quale finestra Tauri è aperta
   return (
     <ErrorBoundary>
       <div className="animate-fade-in">
