@@ -143,7 +143,10 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
               )}
             </div>
             <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800 ${
-              selectedContact.status === 'online' ? 'bg-success-500' : 'bg-gray-400'
+              selectedContact.status === 'online' ? 'bg-success-500' :
+              selectedContact.status === 'in_chat' ? 'bg-primary-500' :
+              selectedContact.status === 'away' ? 'bg-warning-400' :
+              'bg-gray-400'
             }`} />
           </div>
 
@@ -164,7 +167,10 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
               )}
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              {selectedContact.status === 'online' ? 'Online' : 'Offline'}
+              {selectedContact.status === 'online' && 'Online'}
+              {selectedContact.status === 'offline' && 'Offline'}
+              {selectedContact.status === 'away' && 'Assente'}
+              {selectedContact.status === 'in_chat' && 'In chat'}
             </p>
           </div>
         </div>

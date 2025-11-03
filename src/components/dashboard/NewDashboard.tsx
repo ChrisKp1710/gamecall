@@ -71,10 +71,18 @@ export function NewDashboard() {
       updateFriendStatus(userId, 'away');
     },
     onUserEnteredChat: (userId, chatWithUserId) => {
-      console.log('💬 [WebSocket] Utente entrato in chat:', userId);
+      console.log('💬 [WebSocket] Utente entrato in chat:', userId, 'chatWithUserId:', chatWithUserId);
       updateFriendStatus(userId, 'in_chat');
       // Se l'utente è entrato in chat con me
+      console.log('🔍 [Debug] Controllo isContactInChatWithMe:', {
+        userId,
+        chatWithUserId,
+        myId: user?.id,
+        selectedContactId: selectedContact?.id,
+        condition: user && chatWithUserId === user.id && selectedContact?.id === userId
+      });
       if (user && chatWithUserId === user.id && selectedContact?.id === userId) {
+        console.log('✅ [Dashboard] Impostato isContactInChatWithMe = true');
         setContactInChatWithMe(true);
       }
     },
@@ -111,6 +119,17 @@ export function NewDashboard() {
 
   // Gestione lifecycle app (focus/blur)
   useAppLifecycle({ sendWsMessage });
+
+  // Sincronizza selectedContact quando cambia lo stato nell'array friends
+  useEffect(() => {
+    if (selectedContact) {
+      const updatedContact = friends.find(f => f.id === selectedContact.id);
+      if (updatedContact && updatedContact.status !== selectedContact.status) {
+        console.log(`🔄 [Dashboard] Aggiornamento stato ${selectedContact.username}: ${selectedContact.status} → ${updatedContact.status}`);
+        setSelectedContact(updatedContact);
+      }
+    }
+  }, [friends, selectedContact]);
 
   const handleSelectContact = useCallback((contact: Contact) => {
     setSelectedContact(contact);
