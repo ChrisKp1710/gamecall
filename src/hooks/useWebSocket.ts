@@ -7,6 +7,10 @@ export type WsMessage =
   | { type: 'friend_removed'; friend_id: string }
   | { type: 'user_online'; user_id: string }
   | { type: 'user_offline'; user_id: string }
+  | { type: 'user_away'; user_id: string }
+  | { type: 'user_entered_chat'; user_id: string; chat_with_user_id: string }
+  | { type: 'user_left_chat'; user_id: string; chat_with_user_id: string }
+  | { type: 'chat_notification_request'; from_user_id: string; from_username: string; to_user_id: string }
   | { type: 'webrtc_signal'; from_user_id: string; to_user_id: string; signal: any }
   | { type: 'ping' }
   | { type: 'pong' };
@@ -17,6 +21,10 @@ interface UseWebSocketOptions {
   onFriendRemoved?: (friendId: string) => void;
   onUserOnline?: (userId: string) => void;
   onUserOffline?: (userId: string) => void;
+  onUserAway?: (userId: string) => void;
+  onUserEnteredChat?: (userId: string, chatWithUserId: string) => void;
+  onUserLeftChat?: (userId: string, chatWithUserId: string) => void;
+  onChatNotificationRequest?: (fromUserId: string, fromUsername: string) => void;
   onWebRTCSignal?: (fromUserId: string, signal: any) => void;
 }
 
@@ -81,6 +89,18 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
               break;
             case 'user_offline':
               optionsRef.current.onUserOffline?.(message.user_id);
+              break;
+            case 'user_away':
+              optionsRef.current.onUserAway?.(message.user_id);
+              break;
+            case 'user_entered_chat':
+              optionsRef.current.onUserEnteredChat?.(message.user_id, message.chat_with_user_id);
+              break;
+            case 'user_left_chat':
+              optionsRef.current.onUserLeftChat?.(message.user_id, message.chat_with_user_id);
+              break;
+            case 'chat_notification_request':
+              optionsRef.current.onChatNotificationRequest?.(message.from_user_id, message.from_username);
               break;
             case 'webrtc_signal':
               optionsRef.current.onWebRTCSignal?.(message.from_user_id, message.signal);

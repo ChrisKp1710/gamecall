@@ -2,15 +2,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { Contact } from '../../types';
 import { useWebRTC, Message } from '../../hooks/useWebRTC';
 import { WsMessage } from '../../hooks/useWebSocket';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface ChatAreaProps {
   selectedContact: Contact | null;
   onRemoveFriend: (friendId: string) => void;
   sendWsMessage: (message: WsMessage) => void;
   webrtcRef: React.MutableRefObject<ReturnType<typeof useWebRTC> | null>;
+  isContactInChatWithMe: boolean;
 }
 
-export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrtcRef }: ChatAreaProps) {
+export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrtcRef, isContactInChatWithMe }: ChatAreaProps) {
+  const { user } = useAuth();
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -32,6 +35,29 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
 
   // Salva ref per callback WebSocket dal Dashboard
   webrtcRef.current = webrtc;
+
+  // Gestione entrata/uscita dalla chat
+  useEffect(() => {
+    if (selectedContact) {
+      // Notifica entrata in chat
+      console.log('💬 [Chat] Entrato in chat con', selectedContact.username);
+      sendWsMessage({
+        type: 'user_entered_chat',
+        user_id: '',
+        chat_with_user_id: selectedContact.id,
+      });
+
+      // Notifica uscita quando il componente smonta o cambia contatto
+      return () => {
+        console.log('🚪 [Chat] Uscito dalla chat con', selectedContact.username);
+        sendWsMessage({
+          type: 'user_left_chat',
+          user_id: '',
+          chat_with_user_id: selectedContact.id,
+        });
+      };
+    }
+  }, [selectedContact, sendWsMessage]);
 
   // Reset messages quando cambia contatto
   useEffect(() => {
@@ -67,6 +93,20 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
       alert('Connessione P2P non disponibile. Assicurati che entrambi siate online.');
     }
   }, [message, selectedContact, webrtc]);
+
+  const handleNotifyContact = useCallback(() => {
+    if (!selectedContact || !user) return;
+
+    console.log('🔔 [Chat] Invio richiesta notifica a', selectedContact.username);
+    sendWsMessage({
+      type: 'chat_notification_request',
+      from_user_id: user.id,
+      from_username: user.username,
+      to_user_id: selectedContact.id,
+    });
+
+    alert(`Richiesta inviata a ${selectedContact.username}!`);
+  }, [selectedContact, user, sendWsMessage]);
 
   // Stato vuoto - nessun contatto selezionato
   if (!selectedContact) {
@@ -212,7 +252,31 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
 
       {/* Input messaggio */}
       <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
-        {!webrtc.isConnected ? (
+        {selectedContact.status === 'offline' ? (
+          <div className="text-center py-3">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              ❌ {selectedContact.username} non è disponibile
+            </p>
+          </div>
+        ) : selectedContact.status === 'away' ? (
+          <div className="text-center py-3">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              😴 {selectedContact.username} è assente
+            </p>
+          </div>
+        ) : !isContactInChatWithMe && webrtc.isConnected ? (
+          <div className="text-center py-3">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+              🔔 {selectedContact.username} non è in chat con te
+            </p>
+            <button
+              onClick={handleNotifyContact}
+              className="px-4 py-2 bg-warning-500 hover:bg-warning-600 text-white rounded-lg font-medium transition-colors"
+            >
+              Avvisa {selectedContact.username}
+            </button>
+          </div>
+        ) : !webrtc.isConnected ? (
           <div className="text-center text-sm text-gray-500 dark:text-gray-400">
             Connetti P2P per inviare messaggi criptati
           </div>

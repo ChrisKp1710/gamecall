@@ -36,6 +36,26 @@ pub enum WsMessage {
     UserOffline {
         user_id: String,
     },
+    #[serde(rename = "user_away")]
+    UserAway {
+        user_id: String,
+    },
+    #[serde(rename = "user_entered_chat")]
+    UserEnteredChat {
+        user_id: String,
+        chat_with_user_id: String,
+    },
+    #[serde(rename = "user_left_chat")]
+    UserLeftChat {
+        user_id: String,
+        chat_with_user_id: String,
+    },
+    #[serde(rename = "chat_notification_request")]
+    ChatNotificationRequest {
+        from_user_id: String,
+        from_username: String,
+        to_user_id: String,
+    },
     #[serde(rename = "webrtc_signal")]
     WebRTCSignal {
         from_user_id: String,
@@ -53,12 +73,15 @@ pub enum WsMessage {
 pub struct WsState {
     // Mappa user_id -> broadcast sender
     pub connections: Arc<RwLock<HashMap<String, broadcast::Sender<String>>>>,
+    // Mappa user_id -> (status, in_chat_with_user_id)
+    pub user_states: Arc<RwLock<HashMap<String, (String, Option<String>)>>>,
 }
 
 impl WsState {
     pub fn new() -> Self {
         Self {
             connections: Arc::new(RwLock::new(HashMap::new())),
+            user_states: Arc::new(RwLock::new(HashMap::new())),
         }
     }
 
@@ -105,6 +128,12 @@ async fn handle_socket(socket: WebSocket, user_id: String, ws_state: WsState) {
         tracing::info!("✅ [WebSocket] Utente {} connesso (totale: {})", user_id, connections.len());
     }
 
+    // Registra stato iniziale: online, non in chat
+    {
+        let mut states = ws_state.user_states.write().await;
+        states.insert(user_id.clone(), ("online".to_string(), None));
+    }
+
     // Notifica che l'utente è online
     ws_state
         .broadcast(&WsMessage::UserOnline {
@@ -136,6 +165,94 @@ async fn handle_socket(socket: WebSocket, user_id: String, ws_state: WsState) {
                                 .send_to_user(&user_id_clone2, &WsMessage::Pong)
                                 .await;
                         }
+                        WsMessage::UserAway { user_id: _ } => {
+                            // Aggiorna stato a "away"
+                            let mut states = ws_state_clone.user_states.write().await;
+                            if let Some(state) = states.get_mut(&user_id_clone2) {
+                                state.0 = "away".to_string();
+                            }
+                            drop(states);
+
+                            // Broadcast stato away
+                            ws_state_clone
+                                .broadcast(&WsMessage::UserAway {
+                                    user_id: user_id_clone2.clone(),
+                                })
+                                .await;
+                            tracing::info!("😴 [WebSocket] Utente {} è away", user_id_clone2);
+                        }
+                        WsMessage::UserOnline { user_id: _ } => {
+                            // Aggiorna stato a "online"
+                            let mut states = ws_state_clone.user_states.write().await;
+                            if let Some(state) = states.get_mut(&user_id_clone2) {
+                                state.0 = "online".to_string();
+                            }
+                            drop(states);
+
+                            // Broadcast stato online
+                            ws_state_clone
+                                .broadcast(&WsMessage::UserOnline {
+                                    user_id: user_id_clone2.clone(),
+                                })
+                                .await;
+                            tracing::info!("🟢 [WebSocket] Utente {} è tornato online", user_id_clone2);
+                        }
+                        WsMessage::UserEnteredChat { user_id: _, chat_with_user_id } => {
+                            // Aggiorna stato: in_chat con qualcuno
+                            let mut states = ws_state_clone.user_states.write().await;
+                            if let Some(state) = states.get_mut(&user_id_clone2) {
+                                state.0 = "in_chat".to_string();
+                                state.1 = Some(chat_with_user_id.clone());
+                            }
+                            drop(states);
+
+                            // Notifica solo l'altro utente
+                            ws_state_clone
+                                .send_to_user(
+                                    &chat_with_user_id,
+                                    &WsMessage::UserEnteredChat {
+                                        user_id: user_id_clone2.clone(),
+                                        chat_with_user_id: chat_with_user_id.clone(),
+                                    },
+                                )
+                                .await;
+                            tracing::info!("💬 [WebSocket] Utente {} entrato in chat con {}", user_id_clone2, chat_with_user_id);
+                        }
+                        WsMessage::UserLeftChat { user_id: _, chat_with_user_id } => {
+                            // Aggiorna stato: online, non più in chat
+                            let mut states = ws_state_clone.user_states.write().await;
+                            if let Some(state) = states.get_mut(&user_id_clone2) {
+                                state.0 = "online".to_string();
+                                state.1 = None;
+                            }
+                            drop(states);
+
+                            // Notifica solo l'altro utente
+                            ws_state_clone
+                                .send_to_user(
+                                    &chat_with_user_id,
+                                    &WsMessage::UserLeftChat {
+                                        user_id: user_id_clone2.clone(),
+                                        chat_with_user_id: chat_with_user_id.clone(),
+                                    },
+                                )
+                                .await;
+                            tracing::info!("🚪 [WebSocket] Utente {} uscito dalla chat con {}", user_id_clone2, chat_with_user_id);
+                        }
+                        WsMessage::ChatNotificationRequest { from_user_id: _, from_username, to_user_id } => {
+                            // Relay notifica all'utente destinatario
+                            ws_state_clone
+                                .send_to_user(
+                                    &to_user_id,
+                                    &WsMessage::ChatNotificationRequest {
+                                        from_user_id: user_id_clone2.clone(),
+                                        from_username,
+                                        to_user_id: to_user_id.clone(),
+                                    },
+                                )
+                                .await;
+                            tracing::info!("🔔 [WebSocket] Notifica chat da {} a {}", user_id_clone2, to_user_id);
+                        }
                         WsMessage::WebRTCSignal { from_user_id: _, to_user_id, signal } => {
                             // Relay WebRTC signal to destination user
                             tracing::info!("📡 [WebSocket] Relay segnale WebRTC da {} a {}", user_id_clone2, to_user_id);
@@ -166,10 +283,14 @@ async fn handle_socket(socket: WebSocket, user_id: String, ws_state: WsState) {
         _ = (&mut recv_task) => send_task.abort(),
     }
 
-    // Rimuovi connessione
+    // Rimuovi connessione e stato
     {
         let mut connections = ws_state.connections.write().await;
         connections.remove(&user_id);
+    }
+    {
+        let mut states = ws_state.user_states.write().await;
+        states.remove(&user_id);
     }
 
     // Notifica che l'utente è offline

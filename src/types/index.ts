@@ -4,9 +4,10 @@ export interface User {
   id: string;
   username: string;
   avatar?: string;
-  status: 'online' | 'offline' | 'in-call' | 'busy';
+  status: 'online' | 'offline' | 'in-call' | 'busy' | 'in_chat' | 'away';
   lastSeen?: Date;
   friendCode?: string;
+  inChatWith?: string; // ID dell'utente con cui è in chat
 }
 
 export interface AuthState {
