@@ -32,15 +32,16 @@ const server = app.listen(PORT, () => {
   console.log(`🌍 Access: http://localhost:${PORT}/peerjs`);
 });
 
-// Configura PeerJS - usa path '/' e monta alla root
+// Configura PeerJS - monta su /peerjs
 const peerServer = ExpressPeerServer(server, {
-  path: '/peerjs',  // PeerJS si aspetta questo percorso
+  path: '/',  // Path relativo alla mount point
   allow_discovery: true,
   proxied: true,
   debug: true,
 });
 
-app.use('/', peerServer);
+// Monta PeerJS su /peerjs - il path completo sarà /peerjs/peerjs (gestito automaticamente)
+app.use('/peerjs', peerServer);
 
 // Logging connessioni
 peerServer.on('connection', (client) => {
