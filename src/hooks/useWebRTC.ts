@@ -243,10 +243,26 @@ export function useWebRTC({ contactId, onMessageReceived, sendSignal }: UseWebRT
 
   // Cleanup on unmount o cambio contatto
   useEffect(() => {
+    // Reset stati quando cambia contatto
+    setIsConnected(false);
+    setIsConnecting(false);
+
     return () => {
-      disconnect();
+      // Usa una funzione inline per evitare dipendenze cicliche
+      console.log('🔌 [WebRTC] Cleanup effect - Disconnessione');
+      if (dataChannelRef.current) {
+        dataChannelRef.current.close();
+        dataChannelRef.current = null;
+      }
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.close();
+        peerConnectionRef.current = null;
+      }
+      pendingCandidatesRef.current = [];
+      setIsConnected(false);
+      setIsConnecting(false);
     };
-  }, [contactId, disconnect]);
+  }, [contactId]); // Solo contactId come dipendenza
 
   return {
     isConnected,
