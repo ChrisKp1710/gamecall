@@ -11,11 +11,18 @@ import { ChatArea } from './ChatArea';
 import { ProfilePanel } from './ProfilePanel';
 import { NotesPanel } from './NotesPanel';
 import { ChatNotificationToast } from '../notifications/ChatNotificationToast';
+import { VideoCall } from '../call/VideoCall';
+import { SimpleIncomingCallModal } from '../call/SimpleIncomingCallModal';
 
 interface ChatNotification {
   fromUserId: string;
   fromUsername: string;
   fromAvatar?: string;
+}
+
+interface IncomingCall {
+  fromUser: Contact;
+  isVideo: boolean;
 }
 
 export function NewDashboard() {
@@ -25,6 +32,10 @@ export function NewDashboard() {
   const [showProfile, setShowProfile] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [chatNotification, setChatNotification] = useState<ChatNotification | null>(null);
+
+  // Stato chiamate
+  const [activeCall, setActiveCall] = useState<{ contact: Contact; isVideo: boolean } | null>(null);
+  const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
 
   // Ref per webrtc (per evitare dipendenze circolari)
   const webrtcRef = useRef<ReturnType<typeof useWebRTC> | null>(null);
@@ -133,6 +144,50 @@ export function NewDashboard() {
     }
   }, [removeFriend, selectedContact]);
 
+  // Gestione chiamate
+  const handleStartCall = useCallback((contact: Contact, isVideo: boolean) => {
+    console.log(`📞 Avvio ${isVideo ? 'videochiamata' : 'chiamata audio'} con ${contact.username}`);
+    setActiveCall({ contact, isVideo });
+  }, []);
+
+  const handleEndCall = useCallback(() => {
+    console.log('🔴 Fine chiamata');
+    setActiveCall(null);
+  }, []);
+
+  const handleAcceptCall = useCallback(() => {
+    if (incomingCall) {
+      console.log(`✅ Accetto chiamata da ${incomingCall.fromUser.username}`);
+      setActiveCall({ contact: incomingCall.fromUser, isVideo: incomingCall.isVideo });
+      setIncomingCall(null);
+    }
+  }, [incomingCall]);
+
+  const handleRejectCall = useCallback(() => {
+    if (incomingCall) {
+      console.log(`❌ Rifiuto chiamata da ${incomingCall.fromUser.username}`);
+      // TODO: Invia messaggio WebSocket per notificare il rifiuto
+      setIncomingCall(null);
+    }
+  }, [incomingCall]);
+
+  // Mostra VideoCall se c'è una chiamata attiva
+  if (activeCall && user) {
+    return (
+      <VideoCall
+        currentUser={{
+          id: user.id,
+          username: user.username,
+          status: 'in_chat',
+          avatar: user.avatar,
+          friendCode: user.friendCode,
+        }}
+        targetUser={activeCall.contact}
+        onEndCall={handleEndCall}
+      />
+    );
+  }
+
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       {/* Sidebar sinistra - Lista amici */}
@@ -163,6 +218,7 @@ export function NewDashboard() {
           onRemoveFriend={handleRemoveFriend}
           sendWsMessage={sendWsMessage}
           webrtcRef={webrtcRef}
+          onStartCall={handleStartCall}
         />
       )}
 
@@ -187,6 +243,16 @@ export function NewDashboard() {
             }
           }}
           onClose={() => setChatNotification(null)}
+        />
+      )}
+
+      {/* Modal chiamata in arrivo */}
+      {incomingCall && (
+        <SimpleIncomingCallModal
+          caller={incomingCall.fromUser}
+          isVideoCall={incomingCall.isVideo}
+          onAccept={handleAcceptCall}
+          onReject={handleRejectCall}
         />
       )}
     </div>
