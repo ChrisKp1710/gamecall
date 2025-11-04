@@ -35,8 +35,14 @@ export function useMediaStream() {
   // Carica lista dispositivi disponibili
   const loadDevices = useCallback(async () => {
     try {
+      // Controlla se enumerateDevices è disponibile (in Tauri dev mode potrebbe non esserlo)
+      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+        console.warn('⚠️ enumerateDevices non disponibile (Tauri dev mode). Usa build per test completo.');
+        return;
+      }
+
       const devices = await navigator.mediaDevices.enumerateDevices();
-      
+
       setState(prev => ({
         ...prev,
         devices: {
@@ -58,6 +64,11 @@ export function useMediaStream() {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
+      // Controlla se getUserMedia è disponibile
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('getUserMedia non disponibile. Richiede build Tauri con entitlements per macOS.');
+      }
+
       // Configurazione video ottimizzata
       const videoConstraints = video ? {
         width: { ideal: 1280 },
