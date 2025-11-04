@@ -43,10 +43,18 @@ export function usePeerConnection(userId: string, options: UsePeerConnectionOpti
   const peerRef = useRef<Peer | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
   const reconnectAttemptsRef = useRef(0);
+  const isInitializingRef = useRef(false); // 🔥 Previene doppie inizializzazioni
   const maxReconnectAttempts = 5;
 
   // Inizializza PeerJS
   const initializePeer = useCallback(() => {
+    // 🚨 Previeni doppie inizializzazioni (React Strict Mode)
+    if (isInitializingRef.current || peerRef.current) {
+      console.log('⚠️ Peer già in fase di inizializzazione o già connesso, skip');
+      return;
+    }
+
+    isInitializingRef.current = true;
     setState(prev => ({ ...prev, connectionStatus: 'connecting', error: null }));
 
     const peerInstance = new Peer(userId, {
@@ -61,6 +69,7 @@ export function usePeerConnection(userId: string, options: UsePeerConnectionOpti
     // Connessione aperta
     peerInstance.on('open', (id) => {
       console.log('✅ Peer connesso con ID:', id);
+      isInitializingRef.current = false; // 🔥 Inizializzazione completata
       setState(prev => ({
         ...prev,
         peerId: id,
@@ -73,7 +82,8 @@ export function usePeerConnection(userId: string, options: UsePeerConnectionOpti
     // Errore connessione
     peerInstance.on('error', (err) => {
       console.error('❌ Errore PeerJS:', err);
-      
+      isInitializingRef.current = false; // 🔥 Reset flag in caso di errore
+
       let errorMessage = 'Errore connessione';
       let shouldReconnect = false;
 
@@ -325,6 +335,8 @@ export function usePeerConnection(userId: string, options: UsePeerConnectionOpti
       peerRef.current = null;
     }
 
+    isInitializingRef.current = false; // 🔥 Reset flag cleanup
+
     setState({
       peer: null,
       peerId: '',
@@ -345,9 +357,15 @@ export function usePeerConnection(userId: string, options: UsePeerConnectionOpti
       return;
     }
 
-    initializePeer();
+    // 🚨 Ritarda l'inizializzazione in React Strict Mode (dev)
+    // In dev, React monta/smonta/rimonta i componenti. Ritardando l'inizializzazione
+    // evitiamo di creare/distruggere il Peer troppo velocemente.
+    const initTimeout = setTimeout(() => {
+      initializePeer();
+    }, 100);
 
     return () => {
+      clearTimeout(initTimeout);
       cleanup();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

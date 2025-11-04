@@ -42,7 +42,8 @@
       "Bash(taskkill:*)",
       "Bash(npm install:*)",
       "Read(//c/Users/chris/Documents/chat/gamecall/**)",
-      "Bash(git revert:*)"
+      "Bash(git revert:*)",
+      "Bash(dos2unix:*)"
     ],
     "deny": [],
     "ask": []
