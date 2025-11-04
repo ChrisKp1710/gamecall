@@ -76,7 +76,7 @@ export function ChatArea({ selectedContact, onRemoveFriend, sendWsMessage, webrt
     if (isAvailable && !webrtc.isConnected && !webrtc.isConnecting) {
       webrtc.connect();
     }
-  }, [selectedContact, webrtc]);
+  }, [selectedContact, webrtc.isConnected, webrtc.isConnecting, webrtc.connect]); // Usa solo le proprietà necessarie
 
   const handleSendMessage = useCallback((e: React.FormEvent) => {
     e.preventDefault();
