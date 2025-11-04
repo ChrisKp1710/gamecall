@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useMediaStream } from '../../hooks/useMediaStream';
-import { usePeerConnection } from '../../hooks/usePeerConnection';
+import { useVideoCall } from '../../hooks/useVideoCall';
+import { useWebSocket } from '../../hooks/useWebSocket';
 import { useCallStore } from '../../stores/callStore';
 import { CallControls } from './CallControls';
 import { Contact } from '../../types';
@@ -24,23 +25,48 @@ export function VideoCall({ currentUser, targetUser, onEndCall }: VideoCallProps
     toggleVideo,
   } = useMediaStream();
 
+  // Ref per handleSignal
+  const handleSignalRef = useRef<((fromUserId: string, signal: any) => void) | null>(null);
+
+  const { sendMessage } = useWebSocket({
+    onWebRTCSignal: (fromUserId, signal) => {
+      // Solo gestisci segnali dal target user
+      if (fromUserId === targetUser.id && handleSignalRef.current) {
+        console.log('📨 [VideoCall] Ricevuto segnale WebRTC da', targetUser.username);
+        handleSignalRef.current(fromUserId, signal);
+      }
+    },
+  });
+
   const {
-    peerId,
     remoteStream,
     connectionStatus,
     callStatus,
-    error: peerError,
-    makeCall,
-    endCall: endPeerCall,
-  } = usePeerConnection(currentUser.id, {
-    onRemoteStream: (_stream) => {
+    startCall,
+    endCall: endVideoCall,
+    handleSignal,
+  } = useVideoCall({
+    contactId: targetUser.id,
+    sendSignal: (toUserId, signal) => {
+      sendMessage({
+        type: 'webrtc_signal',
+        from_user_id: currentUser.id,
+        to_user_id: toUserId,
+        signal,
+      });
+    },
+    onRemoteStream: () => {
       console.log('✅ Stream remoto ricevuto in VideoCall');
     },
     onCallEnded: () => {
-      console.log('📞 Chiamata terminata');
-      handleEndCall();
+      console.log('📞 Chiamata terminata dal peer');
     },
   });
+
+  // Salva handleSignal nel ref per usarlo nel callback WebSocket
+  useEffect(() => {
+    handleSignalRef.current = handleSignal;
+  }, [handleSignal]);
 
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [callDuration, setCallDuration] = useState(0);
@@ -86,13 +112,13 @@ export function VideoCall({ currentUser, targetUser, onEndCall }: VideoCallProps
     }
   }, [remoteStream]);
 
-  // Avvia chiamata quando peer e stream sono pronti
+  // Avvia chiamata quando stream locale è pronto
   useEffect(() => {
-    if (connectionStatus === 'connected' && localStream && callStatus === 'idle') {
+    if (localStream && callStatus === 'idle') {
       console.log(`📞 Avvio chiamata verso ${targetUser.username} (${targetUser.id})`);
-      makeCall(targetUser.id, localStream);
+      startCall(localStream);
 
-      // Timeout di 60 secondi se nessuno risponde (più tempo per accettare)
+      // Timeout di 60 secondi se nessuno risponde
       callTimeoutRef.current = setTimeout(() => {
         if (!remoteStream) {
           console.log('⏱️ Timeout chiamata - nessuna risposta dopo 60 secondi');
@@ -111,7 +137,8 @@ export function VideoCall({ currentUser, targetUser, onEndCall }: VideoCallProps
         clearTimeout(callTimeoutRef.current);
       }
     };
-  }, [connectionStatus, localStream, callStatus, targetUser.id, makeCall]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localStream]); // Solo quando localStream è pronto
 
   // Timer chiamata
   useEffect(() => {
@@ -179,8 +206,8 @@ export function VideoCall({ currentUser, targetUser, onEndCall }: VideoCallProps
       clearInterval(callTimerRef.current);
     }
     
-    // Termina connessione peer
-    endPeerCall();
+    // Termina connessione WebRTC
+    endVideoCall();
     
     // Ferma stream hook
     stopStream();
@@ -241,7 +268,8 @@ export function VideoCall({ currentUser, targetUser, onEndCall }: VideoCallProps
     );
   }
 
-  if (peerError) {
+  // Errore connessione WebRTC
+  if (connectionStatus === 'disconnected' && callStatus === 'ended' && !remoteStream) {
     return (
       <div className="fixed inset-0 bg-gray-900 flex items-center justify-center">
         <div className="bg-gray-800 rounded-2xl p-8 max-w-md text-center border border-gray-700">
@@ -250,8 +278,8 @@ export function VideoCall({ currentUser, targetUser, onEndCall }: VideoCallProps
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3" />
             </svg>
           </div>
-          <h3 className="text-white text-xl font-bold mb-2">Errore Connessione</h3>
-          <p className="text-gray-400 mb-6">{peerError}</p>
+          <h3 className="text-white text-xl font-bold mb-2">Connessione Terminata</h3>
+          <p className="text-gray-400 mb-6">La chiamata è terminata o non è stato possibile connettersi.</p>
           <button
             onClick={handleEndCall}
             className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition"
@@ -315,9 +343,9 @@ export function VideoCall({ currentUser, targetUser, onEndCall }: VideoCallProps
             </div>
           </div>
 
-          {/* Peer ID Debug (solo sviluppo) */}
+          {/* Status Debug (solo sviluppo) */}
           <div className="text-xs text-gray-500 font-mono">
-            Your ID: {peerId}
+            {connectionStatus} | {callStatus}
           </div>
         </div>
       </div>
