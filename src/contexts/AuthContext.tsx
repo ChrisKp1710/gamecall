@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState } from '../types';
 import { API_ENDPOINTS } from '../config/api';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 
 interface AuthContextType {
   user: User | null;
@@ -10,7 +12,7 @@ interface AuthContextType {
   error: string | null;
   login: (username: string, password: string) => Promise<boolean>;
   register: (username: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -195,7 +197,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Logout
-  const logout = () => {
+  const logout = async () => {
+    // Rimuovi dati dal localStorage
     localStorage.removeItem('user');
     localStorage.removeItem('token');
 
@@ -204,6 +207,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       token: null,
       isAuthenticated: false,
     });
+
+    // Gestione finestre: chiudi dashboard e riapri login
+    try {
+      const currentWindow = getCurrentWindow();
+      const label = currentWindow.label;
+
+      // Se siamo nella finestra main (dashboard), chiudi e riapri login
+      if (label === 'main') {
+        // Crea finestra login
+        const loginWindow = new WebviewWindow('login', {
+          url: '/',
+          title: 'GameCall - Login',
+          width: 420,
+          height: 580,
+          decorations: false,
+          resizable: false,
+          center: true,
+        });
+
+        // Attendi che la finestra sia pronta
+        await new Promise((resolve) => {
+          loginWindow.once('tauri://created', () => {
+            resolve(true);
+          });
+          loginWindow.once('tauri://error', () => {
+            resolve(false);
+          });
+        });
+
+        // Chiudi finestra dashboard
+        await currentWindow.close();
+      }
+    } catch (error) {
+      console.error('Errore durante logout:', error);
+    }
   };
 
   return (

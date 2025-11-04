@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
-import { getCurrentWindow } from '@tauri-apps/api/window';
 
 export function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -25,32 +23,10 @@ export function Login() {
         success = await register(username, password);
       }
 
-      if (success) {
-        // Crea e apri finestra main (dashboard) CON decorazioni
-        const mainWindow = new WebviewWindow('main', {
-          url: '/',
-          title: 'GameCall',
-          width: 1200,
-          height: 800,
-          decorations: true,
-          resizable: true,
-          center: true,
-        });
-
-        // Attendi che la finestra sia pronta
-        await new Promise((resolve) => {
-          mainWindow.once('tauri://created', () => {
-            resolve(true);
-          });
-          mainWindow.once('tauri://error', () => {
-            resolve(false);
-          });
-        });
-
-        // Chiudi finestra login
-        const loginWindow = getCurrentWindow();
-        await loginWindow.close();
+      if (!success) {
+        setError('Errore durante l\'autenticazione');
       }
+      // La gestione della finestra è delegata ad App.tsx
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Errore sconosciuto');
     } finally {
