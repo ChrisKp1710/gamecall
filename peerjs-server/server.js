@@ -1,34 +1,46 @@
 const { ExpressPeerServer } = require('peer');
 const express = require('express');
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 9000;
 
+// CORS middleware PRIMA di tutto
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
+}));
+
 // Health check endpoint
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'GameCall PeerJS Server',
+    path: '/peerjs'
+  });
+});
+
 app.get('/health', (req, res) => {
-  res.send('OK');
+  res.json({ status: 'ok' });
 });
 
 // Avvia server Express
 const server = app.listen(PORT, () => {
   console.log(`🚀 PeerJS Server running on port ${PORT}`);
   console.log(`📡 PeerJS path: /peerjs`);
+  console.log(`🌍 Access: http://localhost:${PORT}/peerjs`);
 });
 
-// Configura PeerJS
+// Configura PeerJS - usa path '/' e monta alla root
 const peerServer = ExpressPeerServer(server, {
-  path: '/peerjs',
+  path: '/peerjs',  // PeerJS si aspetta questo percorso
   allow_discovery: true,
   proxied: true,
   debug: true,
-  corsOptions: {
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true
-  }
 });
 
-app.use('/peerjs', peerServer);
+app.use('/', peerServer);
 
 // Logging connessioni
 peerServer.on('connection', (client) => {

@@ -192,11 +192,28 @@ export function VideoCall({ currentUser, targetUser, onEndCall }: VideoCallProps
   // Stati di caricamento ed errore
   if (isMediaLoading) {
     return (
-      <div className="fixed inset-0 bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4" />
-          <p className="text-white text-xl">Accesso a camera e microfono...</p>
-          <p className="text-gray-400 text-sm mt-2">Autorizza i permessi nel browser</p>
+      <div className="fixed inset-0 bg-gray-900 flex items-center justify-center z-50">
+        <div className="bg-gray-800 rounded-2xl p-8 max-w-md text-center border border-gray-700 shadow-2xl">
+          <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-blue-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 className="text-white text-xl font-bold mb-3">Richiesta Permessi</h3>
+          <p className="text-gray-300 mb-2">Accesso a camera e microfono in corso...</p>
+          <p className="text-gray-400 text-sm mb-6">Clicca "Consenti" nel popup del browser per continuare</p>
+          <div className="flex items-center justify-center gap-2 text-yellow-400">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span className="text-sm">Attendendo autorizzazione...</span>
+          </div>
+          <button
+            onClick={handleEndCall}
+            className="mt-6 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+          >
+            Annulla
+          </button>
         </div>
       </div>
     );

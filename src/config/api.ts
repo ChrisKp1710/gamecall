@@ -7,7 +7,7 @@ export const API_BASE_URL = 'https://gamecall-api.fly.dev';
 export const PEER_CONFIG = {
   host: 'gamecall-peerjs.fly.dev',
   port: 443,
-  path: '/peerjs',
+  path: '/peerjs',  // Path gestito dal server
   secure: true,
   config: {
     iceServers: [
