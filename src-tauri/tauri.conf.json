@@ -54,7 +54,7 @@
     ],
     "macOS": {
       "signingIdentity": "Developer ID Application: Christian Koscielniak Pinto (32252Z5NQN)",
-      "entitlements": null,
+      "entitlements": "entitlements.plist",
       "minimumSystemVersion": "10.13"
     }
   }
